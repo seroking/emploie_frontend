@@ -1,18 +1,26 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Calendar from './pages/Calendar';
 import Unauthorized from './components/Unauthorized';
+import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+
+          {/* Directeur-only route */}
+          <Route element={<ProtectedRoute allowedRoles="Directeur" />}>  
+            <Route path="/calendar" element={<Calendar />} />
+          </Route>
+
+          <Route path="/unauthorized" element={<Unauthorized />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
-
-export default App;

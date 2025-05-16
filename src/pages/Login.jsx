@@ -22,6 +22,7 @@ export default function Login() {
       const { user, token } = await loginUser(email, password);
 
       localStorage.setItem('jwt_token', token);
+      localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
 
       if (user.role === 'Directeur') {
@@ -31,7 +32,7 @@ export default function Login() {
       }
 
     } catch (err) {
-      setError(err.message || 'Login failed');
+      setError(err.response?.data?.message || err.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }
