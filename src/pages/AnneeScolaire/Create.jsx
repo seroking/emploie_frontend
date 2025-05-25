@@ -25,6 +25,7 @@ const CreateAnneeScolaire = () => {
       setMessage({ type: "success", text: "Année scolaire créée avec succès." });
       setTimeout(() => navigate("/annees-scolaires"), 1500);
     } catch (err) {
+      console.error(err.response || err);
       setMessage({ type: "error", text: "Erreur lors de la création." });
     }
   };

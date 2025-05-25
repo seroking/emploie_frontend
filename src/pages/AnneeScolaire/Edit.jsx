@@ -16,14 +16,8 @@ const EditAnneeScolaire = () => {
   const [nom, setNom] = useState("");
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
-  const [etablissementId, setEtablissementId] = useState("");
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const etablissements = [
-    { value: 1, label: "Etablissement A" },
-    { value: 2, label: "Etablissement B" },
-  ];
 
   useEffect(() => {
     API.get(`/annees-scolaires/${id}`)
@@ -32,8 +26,8 @@ const EditAnneeScolaire = () => {
         setNom(annee.nom);
         setDateDebut(annee.date_debut);
         setDateFin(annee.date_fin);
-        setEtablissementId(annee.etablissement_id);
         setLoading(false);
+        console.log(annee);
       })
       .catch(() => setLoading(false));
   }, [id]);
@@ -45,7 +39,6 @@ const EditAnneeScolaire = () => {
         nom,
         date_debut: dateDebut,
         date_fin: dateFin,
-        etablissement_id: etablissementId,
       });
       setMessage({
         type: "success",
@@ -53,6 +46,7 @@ const EditAnneeScolaire = () => {
       });
       setTimeout(() => navigate("/annees-scolaires"), 1500);
     } catch {
+      console.error(err.response || err);
       setMessage({ type: "error", text: "Erreur lors de la modification." });
     }
   };
@@ -85,15 +79,6 @@ const EditAnneeScolaire = () => {
           value={dateFin}
           onChange={(e) => setDateFin(e.target.value)}
         />
-
-        <Label htmlFor="etablissement_id">Etablissement</Label>
-        <Select
-          name="etablissement_id"
-          options={etablissements}
-          value={etablissementId}
-          onChange={(e) => setEtablissementId(e.target.value)}
-        />
-
         <Button type="submit">Modifier</Button>
       </Form>
     </>

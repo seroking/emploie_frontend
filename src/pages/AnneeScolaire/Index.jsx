@@ -43,7 +43,6 @@ const IndexAnneeScolaire = () => {
     { key: "nom", label: "Nom" },
     { key: "date_debut", label: "Date Début" },
     { key: "date_fin", label: "Date Fin" },
-    { key: "etablissement_id", label: "Établissement" },
   ];
 
   return (
