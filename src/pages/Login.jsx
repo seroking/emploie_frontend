@@ -23,10 +23,18 @@ export default function Login() {
 
       localStorage.setItem('jwt_token', token);
       localStorage.setItem('user', JSON.stringify(user));
+      console.log('User logged in:', user);
       setUser(user);
 
-      if (user.role === 'Directeur') {
-        navigate('/calendar');
+      const allowedRoles = [
+        "DirecteurEtablissement",
+        "DirecteurSuper",
+        "DirecteurRegional",
+        "DirecteurComplexe"
+      ];
+
+      if (allowedRoles.includes(user.role)) {
+        navigate('/dashboard'); // or '/calendar' or any default page
       } else {
         navigate('/unauthorized');
       }

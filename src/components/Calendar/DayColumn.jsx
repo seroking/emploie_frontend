@@ -64,7 +64,7 @@ export default function DayColumn({ groupId, day, schedules, onAdd }) {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2 min-h-[80px]">
+          <div className="flex flex-row gap-2 min-h-[80px] items-center overflow-x-auto">
             {schedules.map(sch => (
               <div
                 key={sch.id}
