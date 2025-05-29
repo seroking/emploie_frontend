@@ -17,34 +17,38 @@ const EditComplexe = () => {
   const [directions, setDirections] = useState([]);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
 
   // Fetch directions and complexe data
   useEffect(() => {
-    // Fetch directions
-    API.get("/directions-regionales")
-      .then((res) => {
+    const fetchData = async () => {
+      try {
+        // Fetch directions
+        const directionsRes = await API.get("/directions-regionales");
         setDirections(
-          res.data.data.map((d) => ({
+          directionsRes.data.data.map((d) => ({
             value: d.id,
             label: d.nom,
           }))
         );
-      })
-      .catch(() =>
-        setMessage({ type: "error", text: "Erreur de chargement des directions régionales." })
-      );
-    // Fetch complexe
-    API.get(`/complexes/${id}`)
-      .then((res) => {
-        setNom(res.data.data.nom);
-        setDirectionRegionalId(res.data.data.direction_regional_id);
-      })
-      .catch(() => setMessage({ type: "error", text: "Erreur de chargement du complexe." }))
-      .finally(() => setLoading(false));
+
+        // Fetch complexe data
+        const complexeRes = await API.get(`/complexes/${id}`);
+        setNom(complexeRes.data.data.nom);
+        setDirectionRegionalId(complexeRes.data.data.direction_regional_id); // Ensure this matches the `value` in `directions`
+      } catch (err) {
+        setMessage({ type: "error", text: "Erreur de chargement des données." });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoadingSubmit(true);
     try {
       await API.put(`/complexes/${id}`, {
         nom,
@@ -57,6 +61,8 @@ const EditComplexe = () => {
         type: "error",
         text: err.response?.data?.message || "Erreur lors de la modification.",
       });
+    } finally {
+      setLoadingSubmit(false);
     }
   };
 
@@ -81,7 +87,9 @@ const EditComplexe = () => {
           onChange={(e) => setDirectionRegionalId(e.target.value)}
         />
 
-        <Button type="submit">Modifier</Button>
+        <Button type="submit" disabled={loadingSubmit}>
+          {loadingSubmit ? "Modification en cours..." : "Modifier"}
+        </Button>
       </Form>
     </>
   );

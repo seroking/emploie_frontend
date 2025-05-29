@@ -6,6 +6,7 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api"; // Assurez-vous que le chemin d'importation est correct
 
 const EditUser = () => {
   const { id } = useParams();
@@ -18,34 +19,41 @@ const EditUser = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simuler le chargement de données
-    const utilisateurs = [
-      {
-        id: 1,
-        nom: "Jean Dupont",
-        email: "jean@example.com",
-        role: "Formateur",
-      },
-      {
-        id: 2,
-        nom: "Marie Curie",
-        email: "marie@example.com",
-        role: "Directeur",
-      },
-    ];
-    const utilisateur = utilisateurs.find((u) => u.id === parseInt(id));
-    if (utilisateur) {
-      setNom(utilisateur.nom);
-      setEmail(utilisateur.email);
-      setRole(utilisateur.role);
-    }
-    setLoading(false);
+    const fetchUser = async () => {
+      try {
+        const response = await API.get(`/users/${id}`);
+        const user = response.data.data;
+        setNom(user.nom);
+        setEmail(user.email);
+        setRole(user.role);
+        setLoading(false);
+      } catch (error) {
+        setMessage({ 
+          type: "error", 
+          text: "Erreur lors du chargement de l'utilisateur" 
+        });
+        setLoading(false);
+      }
+    };
+    fetchUser();
   }, [id]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Utilisateur modifié avec succès." });
-    setTimeout(() => navigate("/users"), 1500);
+    try {
+      await API.put(`/users/${id}`, {
+        nom,
+        email,
+        role
+      });
+      setMessage({ type: "success", text: "Utilisateur modifié avec succès." });
+      setTimeout(() => navigate("/users"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la modification"
+      });
+    }
   };
 
   if (loading) return <div>Chargement...</div>;

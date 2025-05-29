@@ -6,6 +6,7 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const EditSemaine = () => {
   const { id } = useParams();
@@ -15,45 +16,52 @@ const EditSemaine = () => {
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
   const [anneeScolaireId, setAnneeScolaireId] = useState("");
+  const [anneesScolaires, setAnneesScolaires] = useState([]);
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const anneesScolaires = [
-    { id: 1, nom: "2024-2025" },
-    { id: 2, nom: "2025-2026" },
-  ];
-
   useEffect(() => {
-    const fetchSemaine = () => {
-      setIsLoading(true);
-      setTimeout(() => {
-        const semaines = [
-          {
-            id: 1,
-            numero_semaine: 1,
-            date_debut: "2024-09-02",
-            date_fin: "2024-09-08",
-            annee_scolaire_id: 1,
-          },
-        ];
-        const found = semaines.find((s) => s.id === parseInt(id));
-        if (found) {
-          setNumeroSemaine(found.numero_semaine);
-          setDateDebut(found.date_debut);
-          setDateFin(found.date_fin);
-          setAnneeScolaireId(found.annee_scolaire_id);
-        }
+    const fetchData = async () => {
+      try {
+        const anneesRes = await API.get("/annees-scolaires");
+        setAnneesScolaires(anneesRes.data.data);
+
+        const semaineRes = await API.get(`/semaines/${id}`);
+        const semaine = semaineRes.data.data;
+        setNumeroSemaine(semaine.numero_semaine);
+        setDateDebut(semaine.date_debut);
+        setDateFin(semaine.date_fin);
+        setAnneeScolaireId(semaine.annee_scolaire_id);
+      } catch (err) {
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement des données.",
+        });
+      } finally {
         setIsLoading(false);
-      }, 500);
+      }
     };
 
-    fetchSemaine();
+    fetchData();
   }, [id]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Semaine modifiée avec succès." });
-    setTimeout(() => navigate("/semaines"), 1500);
+    try {
+      await API.put(`/semaines/${id}`, {
+        numero_semaine: numeroSemaine,
+        date_debut: dateDebut,
+        date_fin: dateFin,
+        annee_scolaire_id: anneeScolaireId,
+      });
+      setMessage({ type: "success", text: "Semaine modifiée avec succès." });
+      setTimeout(() => navigate("/semaines"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la modification.",
+      });
+    }
   };
 
   if (isLoading) return <div>Chargement...</div>;

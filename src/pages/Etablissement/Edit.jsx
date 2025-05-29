@@ -6,6 +6,7 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const EditEtablissement = () => {
   const { id } = useParams();
@@ -15,56 +16,63 @@ const EditEtablissement = () => {
   const [adresse, setAdresse] = useState("");
   const [telephone, setTelephone] = useState("");
   const [directeurId, setDirecteurId] = useState("");
+  const [complexeId, setComplexeId] = useState("");
+  const [directeurs, setDirecteurs] = useState([]);
+  const [complexes, setComplexes] = useState([]);
   const [message, setMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const directeurs = [
-    { id: 1, nom: "Jean Dupont" },
-    { id: 2, nom: "Marie Curie" },
-  ];
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEtablissement = () => {
-      setIsLoading(true);
-      setTimeout(() => {
-        const etablissements = [
-          {
-            id: 1,
-            nom: "Lycée Jean Moulin",
-            adresse: "123 Rue Principale",
-            telephone: "0123456789",
-            directeur_id: 1,
-          },
-          {
-            id: 2,
-            nom: "Collège Victor Hugo",
-            adresse: "456 Rue Secondaire",
-            telephone: "0987654321",
-            directeur_id: 2,
-          },
-        ];
-
-        const found = etablissements.find((e) => e.id === parseInt(id));
-        if (found) {
-          setNom(found.nom);
-          setAdresse(found.adresse);
-          setTelephone(found.telephone);
-          setDirecteurId(found.directeur_id);
-        }
-        setIsLoading(false);
-      }, 500);
+    const fetchData = async () => {
+      try {
+        const [etablissement, directeursRes, complexesRes] = await Promise.all([
+          API.get(`/etablissements/${id}`),
+          API.get("/directeur-etablissements"),
+          API.get("/complexes")
+        ]);
+        
+        const data = etablissement.data.data;
+        setNom(data.nom);
+        setAdresse(data.adresse);
+        setTelephone(data.telephone);
+        setDirecteurId(data.directeur_etablissement_id);
+        setComplexeId(data.complexe_id);
+        
+        setDirecteurs(directeursRes.data.data);
+        setComplexes(complexesRes.data.data);
+      } catch (error) {
+        setMessage({ 
+          type: "error", 
+          text: "Erreur lors du chargement des données" 
+        });
+      } finally {
+        setLoading(false);
+      }
     };
-
-    fetchEtablissement();
+    fetchData();
   }, [id]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Établissement modifié avec succès." });
-    setTimeout(() => navigate("/etablissements"), 1500);
+    try {
+      await API.put(`/etablissements/${id}`, {
+        nom: nom.trim(),
+        adresse: adresse.trim(),
+        telephone: telephone.trim(),
+        directeur_etablissement_id: directeurId,
+        complexe_id: complexeId
+      });
+      setMessage({ type: "success", text: "Établissement modifié avec succès." });
+      setTimeout(() => navigate("/etablissements"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la modification"
+      });
+    }
   };
 
-  if (isLoading) return <div>Chargement...</div>;
+  if (loading) return <div>Chargement...</div>;
 
   return (
     <>
@@ -99,7 +107,22 @@ const EditEtablissement = () => {
           name="directeurId"
           value={directeurId}
           onChange={(e) => setDirecteurId(e.target.value)}
-          options={directeurs.map((d) => ({ value: d.id, label: d.nom }))}
+          options={directeurs.map((d) => ({ 
+            value: d.id, 
+            label: d.nom 
+          }))}
+          required
+        />
+
+        <Label htmlFor="complexeId">Complexe</Label>
+        <Select
+          name="complexeId"
+          value={complexeId}
+          onChange={(e) => setComplexeId(e.target.value)}
+          options={complexes.map((c) => ({ 
+            value: c.id, 
+            label: c.nom 
+          }))}
           required
         />
 

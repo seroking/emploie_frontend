@@ -2,50 +2,55 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const IndexEtablissement = () => {
-  const [etablissements, setEtablissements] = useState([
-    {
-      id: 1,
-      nom: "Lycée Jean Moulin",
-      adresse: "123 Rue Principale",
-      telephone: "0123456789",
-      directeur_id: 1,
-      directeur_nom: "Jean Dupont",
-    },
-    {
-      id: 2,
-      nom: "Collège Victor Hugo",
-      adresse: "456 Rue Secondaire",
-      telephone: "0987654321",
-      directeur_id: 2,
-      directeur_nom: "Marie Curie",
-    },
-  ]);
+  const [etablissements, setEtablissements] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
+    const fetchEtablissements = async () => {
+      try {
+        const response = await API.get("/etablissements");
+        setEtablissements(response.data.data);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des établissements",
+        });
+      }
+    };
+    fetchEtablissements();
+  }, []);
+
+  const handleDelete = async (item) => {
+    try {
+      await API.delete(`/etablissements/${item.id}`);
+      setEtablissements((prev) => prev.filter((e) => e.id !== item.id));
+      setMessage({ type: "success", text: "Établissement supprimé." });
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la suppression",
+      });
     }
-  }, [message]);
-
-  const handleDelete = (item) => {
-    setEtablissements((prev) => prev.filter((e) => e.id !== item.id));
-    setMessage({ type: "success", text: "Établissement supprimé." });
-  };
-
-  const handleEdit = (item) => {
-    navigate(`/etablissements/edit/${item.id}`);
   };
 
   const columns = [
     { key: "nom", label: "Nom" },
     { key: "adresse", label: "Adresse" },
     { key: "telephone", label: "Téléphone" },
-    { key: "directeur_nom", label: "Directeur" },
+    {
+      key: "directeur_etablissement",
+      label: "Directeur",
+      render: (item) => item.directeur_etablissement?.nom || "N/A",
+    },
+    {
+      key: "complexe",
+      label: "Complexe",
+      render: (item) => item.complexe?.nom || "N/A",
+    },
   ];
 
   return (
@@ -63,7 +68,7 @@ const IndexEtablissement = () => {
       <Table
         columns={columns}
         data={etablissements}
-        onEdit={handleEdit}
+        onEdit={(item) => navigate(`/etablissements/edit/${item.id}`)}
         onDelete={handleDelete}
       />
     </div>

@@ -11,7 +11,9 @@ const IndexComplexe = () => {
 
   useEffect(() => {
     API.get("/complexes")
-      .then((res) => setComplexes(res.data.data))
+      .then((res) => {
+        //console.log("GET /complexes →", res.data);
+        setComplexes(res.data.data)})
       .catch(() =>
         setMessage({ type: "error", text: "Erreur de chargement des complexes." })
       );
@@ -27,6 +29,7 @@ const IndexComplexe = () => {
   const handleDelete = async (item) => {
     try {
       await API.delete(`/complexes/${item.id}`);
+      console.log("DELETE /complexes →", item);
       setComplexes((prev) => prev.filter((c) => c.id !== item.id)); // <-- IMPORTANT
       setMessage({ type: "success", text: "Complexe supprimé." });
     } catch (err) {

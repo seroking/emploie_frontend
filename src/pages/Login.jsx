@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { loginUser } from '../services/authService';
@@ -12,6 +12,12 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Clear credentials when the login page is loaded
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('user');
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

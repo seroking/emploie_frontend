@@ -16,11 +16,26 @@ const CreateDirectionRegional = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Add validation
+    if (!nom.trim()) {
+      setMessage({ type: "error", text: "Le nom est requis." });
+      return;
+    }
+    if (!adresse.trim()) {
+      setMessage({ type: "error", text: "L'adresse est requise." });
+      return;
+    }
+    if (!telephone.trim()) {
+      setMessage({ type: "error", text: "Le téléphone est requis." });
+      return;
+    }
+
     try {
       await API.post("/directions-regionales", {
-        nom,
-        adresse,
-        telephone,
+        nom: nom.trim(),
+        adresse: adresse.trim(),
+        telephone: telephone.trim(),
       });
       setMessage({ type: "success", text: "Direction régionale créée avec succès." });
       setTimeout(() => navigate("/directions-regionales"), 1500);

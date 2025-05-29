@@ -13,6 +13,7 @@ const CreateComplexe = () => {
   const [directionRegionalId, setDirectionRegionalId] = useState("");
   const [directions, setDirections] = useState([]);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Charger dynamiquement les directions régionales
@@ -33,6 +34,7 @@ const CreateComplexe = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await API.post("/complexes", {
         nom,
@@ -45,6 +47,8 @@ const CreateComplexe = () => {
         type: "error",
         text: err.response?.data?.message || "Erreur lors de la création.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,7 +72,9 @@ const CreateComplexe = () => {
           onChange={(e) => setDirectionRegionalId(e.target.value)}
         />
 
-        <Button type="submit">Créer</Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Création en cours..." : "Créer"}
+        </Button>
       </Form>
     </>
   );

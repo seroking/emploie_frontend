@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
@@ -6,24 +6,62 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const CreateEtablissement = () => {
   const [nom, setNom] = useState("");
   const [adresse, setAdresse] = useState("");
   const [telephone, setTelephone] = useState("");
   const [directeurId, setDirecteurId] = useState("");
+  const [complexeId, setComplexeId] = useState("");
+  const [directeurs, setDirecteurs] = useState([]);
+  const [complexes, setComplexes] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  const directeurs = [
-    { id: 1, nom: "Jean Dupont" },
-    { id: 2, nom: "Marie Curie" },
-  ];
+  // Fetch directeurs and complexes
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [directeursRes, complexesRes] = await Promise.all([
+          API.get("/users", {
+            params: {
+              role: "DirecteurEtablissement", // Filter users by role
+            },
+          }),
+          API.get("/complexes"),
+        ]);
 
-  const handleSubmit = (e) => {
+        setDirecteurs(directeursRes.data.data);
+        setComplexes(complexesRes.data.data);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des données",
+        });
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Établissement créé avec succès." });
-    setTimeout(() => navigate("/etablissements"), 1500);
+    try {
+      await API.post("/etablissements", {
+        nom: nom.trim(),
+        adresse: adresse.trim(),
+        telephone: telephone.trim(),
+        directeur_etablissement_id: directeurId,
+        complexe_id: complexeId,
+      });
+      setMessage({ type: "success", text: "Établissement créé avec succès." });
+      setTimeout(() => navigate("/etablissements"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la création",
+      });
+    }
   };
 
   return (
@@ -60,6 +98,15 @@ const CreateEtablissement = () => {
           value={directeurId}
           onChange={(e) => setDirecteurId(e.target.value)}
           options={directeurs.map((d) => ({ value: d.id, label: d.nom }))}
+          required
+        />
+
+        <Label htmlFor="complexeId">Complexe</Label>
+        <Select
+          name="complexeId"
+          value={complexeId}
+          onChange={(e) => setComplexeId(e.target.value)}
+          options={complexes.map((c) => ({ value: c.id, label: c.nom }))}
           required
         />
 

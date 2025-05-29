@@ -2,30 +2,39 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const IndexUser = () => {
-  const [users, setUsers] = useState([
-    { id: 1, nom: "Jean Dupont", email: "jean@example.com", role: "Formateur" },
-    {
-      id: 2,
-      nom: "Marie Curie",
-      email: "marie@example.com",
-      role: "Directeur",
-    },
-  ]);
+  const [users, setUsers] = useState([]);
   const [message, setMessage] = useState(null);
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
   const navigate = useNavigate();
 
-  const handleDelete = (item) => {
-    setUsers((prev) => prev.filter((u) => u.id !== item.id));
-    setMessage({ type: "success", text: "Utilisateur supprimé." });
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await API.get("/users");
+        setUsers(response.data.data);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des utilisateurs",
+        });
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  const handleDelete = async (item) => {
+    try {
+      await API.delete(`/users/${item.id}`);
+      setUsers((prev) => prev.filter((u) => u.id !== item.id));
+      setMessage({ type: "success", text: "Utilisateur supprimé." });
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la suppression",
+      });
+    }
   };
 
   const handleEdit = (item) => {

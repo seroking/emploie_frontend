@@ -33,7 +33,13 @@ export default function Sidebar({ open, setOpen }) {
   };
 
   const menuItems = [
-    { label: "Accueil", to: "/", icon: <Home size={18} />, roles: [] },
+    { label: "Accueil", to: "/dashboard", icon: <Home size={18} />, roles: [] },
+    {
+      label: "Calendrier",
+      to: "/calendar",
+      icon: <CalendarDays size={18} />,
+      roles: [],
+    },
     {
       label: "Année Scolaires",
       to: "/annees-scolaires",

@@ -10,7 +10,6 @@ import API from "../../services/api";
 const EditDirectionRegional = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [nom, setNom] = useState("");
   const [adresse, setAdresse] = useState("");
   const [telephone, setTelephone] = useState("");
@@ -18,30 +17,39 @@ const EditDirectionRegional = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    API.get(`/directions-regionales/${id}`)
-      .then((res) => {
-        setNom(res.data.data.nom);
-        setAdresse(res.data.data.adresse);
-        setTelephone(res.data.data.telephone);
-      })
-      .catch(() => setMessage({ type: "error", text: "Erreur de chargement." }))
-      .finally(() => setLoading(false));
+    const fetchDirection = async () => {
+      try {
+        const response = await API.get(`/directions-regionales/${id}`);
+        const direction = response.data.data;
+        setNom(direction.nom);
+        setAdresse(direction.adresse);
+        setTelephone(direction.telephone);
+      } catch (error) {
+        setMessage({ 
+          type: "error", 
+          text: "Erreur lors du chargement de la direction régionale" 
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDirection();
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await API.put(`/directions-regionales/${id}`, {
-        nom,
-        adresse,
-        telephone,
+        nom: nom.trim(),
+        adresse: adresse.trim(),
+        telephone: telephone.trim(),
       });
-      setMessage({ type: "success", text: "Direction régionale modifiée avec succès." });
+      setMessage({ type: "success", text: "Direction régionale modifiée avec succès" });
       setTimeout(() => navigate("/directions-regionales"), 1500);
-    } catch (err) {
+    } catch (error) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Erreur lors de la modification.",
+        text: error.response?.data?.message || "Erreur lors de la modification"
       });
     }
   };
@@ -54,23 +62,26 @@ const EditDirectionRegional = () => {
       <Form onSubmit={handleSubmit}>
         <Label htmlFor="nom">Nom</Label>
         <Input
-          name="nom"
+          id="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
+          required
         />
 
         <Label htmlFor="adresse">Adresse</Label>
         <Input
-          name="adresse"
+          id="adresse"
           value={adresse}
           onChange={(e) => setAdresse(e.target.value)}
+          required
         />
 
         <Label htmlFor="telephone">Téléphone</Label>
         <Input
-          name="telephone"
+          id="telephone"
           value={telephone}
           onChange={(e) => setTelephone(e.target.value)}
+          required
         />
 
         <Button type="submit">Modifier</Button>

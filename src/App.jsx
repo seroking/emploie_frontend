@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Calendar from "./pages/Calendar";
 
 // CRUD pages imports
 import IndexAnneeScolaire from "./pages/AnneeScolaire/Index";
@@ -57,6 +58,7 @@ function AppLayout({ sidebarOpen, setSidebarOpen }) {
         <main className="flex-1 p-6 overflow-y-auto">
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/calendar" element={<Calendar />} />
 
             {/* AnneeScolaire */}
             <Route path="/annees-scolaires" element={<IndexAnneeScolaire />} />

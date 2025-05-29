@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
@@ -6,27 +6,64 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const CreateUser = () => {
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("Formateur");
+  const [creatableRoles, setCreatableRoles] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  const roles = [
-    { value: "DirecteurSuper", label: "DirecteurSuper" },
-    { value: "DirecteurRegional", label: "DirecteurRegional" },
-    { value: "DirecteurComplexe", label: "DirecteurComplexe" },
-    { value: "DirecteurEtablissement", label: "DirecteurEtablissement" },
-    { value: "Formateur", label: "Formateur" },
-  ];
+  // Fetch creatable roles from the backend
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await API.get("/users");
+        if (response.data.creatable_roles) {
+          setCreatableRoles(
+            response.data.creatable_roles.map((role) => ({
+              value: role,
+              label: role,
+            }))
+          );
+        }
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des rôles disponibles",
+        });
+      }
+    };
+    fetchRoles();
+  }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Utilisateur créé avec succès." });
-    setTimeout(() => navigate("/users"), 1500);
+
+    if (!nom.trim() || !email.trim() || !password.trim()) {
+      setMessage({ type: "error", text: "Tous les champs sont requis." });
+      return;
+    }
+
+    try {
+      await API.post("/register", {
+        nom: nom.trim(),
+        email: email.trim(),
+        password: password,
+        role,
+      });
+
+      setMessage({ type: "success", text: "Utilisateur créé avec succès." });
+      setTimeout(() => navigate("/users"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la création",
+      });
+    }
   };
 
   return (
@@ -38,6 +75,7 @@ const CreateUser = () => {
           name="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
+          required
         />
 
         <Label htmlFor="email">Email</Label>
@@ -46,6 +84,7 @@ const CreateUser = () => {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
 
         <Label htmlFor="password">Mot de passe</Label>
@@ -54,14 +93,16 @@ const CreateUser = () => {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
 
         <Label htmlFor="role">Rôle</Label>
         <Select
           name="role"
-          options={roles}
+          options={creatableRoles}
           value={role}
           onChange={(e) => setRole(e.target.value)}
+          required
         />
 
         <Button type="submit">Créer</Button>
