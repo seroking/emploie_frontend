@@ -1,5 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 import {
   Home,
   BookOpen,
@@ -15,110 +17,135 @@ import {
   DoorOpen,
   LogOut,
 } from "lucide-react";
-import { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
 
 export default function Sidebar({ open, setOpen }) {
   const location = useLocation();
   const navigate = useNavigate();
-   const handleLogout = async () => {
+  const { user } = useContext(AuthContext);
+
+  const handleLogout = async () => {
     try {
-      await API.post("/logout"); // Token sera injecté via interceptor
+      await API.post("/logout");
     } catch (error) {
       console.error("Erreur lors de la déconnexion :", error);
     } finally {
       localStorage.removeItem("jwt_token");
+      localStorage.removeItem("user");
       navigate("/");
     }
   };
 
   const menuItems = [
-    { label: "Accueil", to: "/dashboard", icon: <Home size={18} />, roles: [] },
+    {
+      label: "Accueil",
+      to: "/dashboard",
+      icon: <Home size={18} />,
+      roles: [
+        "Formateur",
+        "DirecteurSuper",
+        "DirecteurRegional",
+        "DirecteurComplexe",
+        "DirecteurEtablissement",
+      ],
+    },
     {
       label: "Calendrier",
       to: "/calendar",
       icon: <CalendarDays size={18} />,
-      roles: [],
+      roles: ["DirecteurEtablissement"],
     },
     {
       label: "Année Scolaires",
       to: "/annees-scolaires",
       icon: <BookOpen size={18} />,
-      roles: [],
+      roles: ["DirecteurSuper"],
     },
     {
       label: "Directions Régionales",
       to: "/directions-regionales",
       icon: <Building2 size={18} />,
-      roles: [],
+      roles: ["DirecteurSuper"],
     },
     {
       label: "Complexes",
       to: "/complexes",
       icon: <Building size={18} />,
-      roles: [],
+      roles: ["DirecteurRegional"],
     },
     {
       label: "Utilisateurs",
       to: "/users",
       icon: <User size={18} />,
-      roles: [],
+      roles: [
+        "DirecteurSuper",
+        "DirecteurRegional",
+        "DirecteurComplexe",
+        "DirecteurEtablissement",
+      ],
     },
     {
       label: "Formateurs",
       to: "/formateurs",
       icon: <GraduationCap size={18} />,
-      roles: [],
+      roles: ["DirecteurRegional", "DirecteurEtablissement"],
     },
     {
       label: "Filières",
       to: "/filieres",
       icon: <GraduationCap size={18} />,
-      roles: [],
+      roles: ["DirecteurSuper", "DirecteurEtablissement"],
     },
     {
       label: "Jours fériés",
       to: "/feries",
       icon: <CalendarRange size={18} />,
-      roles: [],
+      roles: ["DirecteurSuper"],
     },
     {
       label: "Établissements",
       to: "/etablissements",
       icon: <Building size={18} />,
-      roles: [],
+      roles: ["DirecteurComplexe"],
     },
     {
       label: "Semaines",
       to: "/semaines",
       icon: <CalendarDays size={18} />,
-      roles: [],
+      roles: ["DirecteurEtablissement"],
     },
     {
       label: "Secteurs",
       to: "/secteurs",
       icon: <PieChart size={18} />,
-      roles: [],
+      roles: ["DirecteurSuper"],
     },
     {
       label: "Groupes",
       to: "/groupes",
       icon: <Users size={18} />,
-      roles: [],
+      roles: ["DirecteurEtablissement"],
     },
     {
       label: "Salles",
       to: "/salles",
       icon: <DoorOpen size={18} />,
-      roles: [],
+      roles: ["DirecteurEtablissement"],
     },
     {
       label: "Modules",
       to: "/modules",
       icon: <BookOpen size={18} />,
-      roles: [],
+      roles: ["DirecteurEtablissement"],
     },
   ];
+
+  // Récupérer le rôle de l'utilisateur connecté
+  const userRole = user?.role;
+
+  // Filtrer les items selon le rôle
+  const filteredMenuItems = menuItems.filter((item) =>
+    item.roles.includes(userRole)
+  );
 
   return (
     <div
@@ -131,7 +158,7 @@ export default function Sidebar({ open, setOpen }) {
         {open && <span className="text-xl ms-1 font-bold">Gestion d'EDT</span>}
       </div>
       <ul className="space-y-4">
-        {menuItems.map((item) => (
+        {filteredMenuItems.map((item) => (
           <li key={item.to}>
             <Link
               to={item.to}
@@ -156,6 +183,6 @@ export default function Sidebar({ open, setOpen }) {
           {open && <span>Déconnexion</span>}
         </button>
       </div>
-    </div>    
+    </div>
   );
 }
