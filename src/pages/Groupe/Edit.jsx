@@ -6,71 +6,64 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const EditGroupe = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // États individuels pour chaque champ
   const [nom, setNom] = useState("");
   const [annee, setAnnee] = useState("");
   const [filiereId, setFiliereId] = useState("");
   const [etablissementId, setEtablissementId] = useState("");
+  const [filieres, setFilieres] = useState([]);
+  const [etablissements, setEtablissements] = useState([]);
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Simule les données (à remplacer par API ou contexte réel)
-  const filieres = [
-    { id: 1, nom: "Informatique" },
-    { id: 2, nom: "Commerce" },
-  ];
-
-  const etablissements = [
-    { id: 1, nom: "Lycée Jean Moulin" },
-    { id: 2, nom: "Collège Victor Hugo" },
-  ];
-
   useEffect(() => {
-    // Simule récupération groupe
-    const fetchGroupe = () => {
-      setIsLoading(true);
-      // Simulation de requête API
-      setTimeout(() => {
-        const groupes = [
-          {
-            id: 1,
-            nom: "Groupe 1",
-            annee: "2023-2024",
-            filiere_id: 1,
-            etablissement_id: 1,
-          },
-          {
-            id: 2,
-            nom: "Groupe 2",
-            annee: "2023-2024",
-            filiere_id: 2,
-            etablissement_id: 2,
-          },
-        ];
+    const fetchData = async () => {
+      try {
+        const res = await API.get(`/groupes/${id}`);
+        const groupe = res.data.data;
+        setNom(groupe.nom);
+        setAnnee(groupe.annee);
+        setFiliereId(groupe.filiere_id);
+        setEtablissementId(groupe.etablissement_id);
 
-        const found = groupes.find((g) => g.id === parseInt(id));
-        if (found) {
-          setNom(found.nom);
-          setAnnee(found.annee);
-          setFiliereId(found.filiere_id);
-          setEtablissementId(found.etablissement_id);
-        }
+        const allData = await API.get("/groupes");
+        setFilieres(allData.data.filiere);
+        setEtablissements([allData.data.etablissement]);
+      } catch (err) {
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement des données.",
+        });
+      } finally {
         setIsLoading(false);
-      }, 500);
+      }
     };
 
-    fetchGroupe();
+    fetchData();
   }, [id]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Groupe modifié avec succès." });
-    setTimeout(() => navigate("/groupes"), 1500);
+    try {
+      await API.put(`/groupes/${id}`, {
+        nom,
+        annee,
+        filiere_id: filiereId,
+        etablissement_id: etablissementId,
+      });
+      setMessage({ type: "success", text: "Groupe modifié avec succès." });
+      setTimeout(() => navigate("/groupes"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la modification.",
+      });
+    }
   };
 
   if (isLoading) return <div>Chargement...</div>;

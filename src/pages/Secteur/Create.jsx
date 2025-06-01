@@ -5,16 +5,25 @@ import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const CreateSecteur = () => {
   const [nom, setNom] = useState("");
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Secteur créé avec succès." });
-    setTimeout(() => navigate("/secteurs"), 1500);
+    try {
+      await API.post("/secteurs", { nom }); // Send POST request to create secteur
+      setMessage({ type: "success", text: "Secteur créé avec succès." });
+      setTimeout(() => navigate("/secteurs"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la création.",
+      });
+    }
   };
 
   return (

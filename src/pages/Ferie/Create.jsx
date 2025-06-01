@@ -5,6 +5,7 @@ import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const CreateFerie = () => {
   const [nom, setNom] = useState("");
@@ -13,10 +14,22 @@ const CreateFerie = () => {
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Jour férié ajouté avec succès." });
-    setTimeout(() => navigate("/feries"), 1500);
+    try {
+      await API.post("/feries", {
+        nom,
+        date_debut: dateDebut,
+        date_fin: dateFin,
+      });
+      setMessage({ type: "success", text: "Jour férié ajouté avec succès." });
+      setTimeout(() => navigate("/feries"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de l'ajout.",
+      });
+    }
   };
 
   return (

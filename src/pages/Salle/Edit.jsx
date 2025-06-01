@@ -6,116 +6,115 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const EditSalle = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [nom, setNom] = useState("");
+  const [capacite, setCapacite] = useState("");
+  const [type, setType] = useState("");
+  const [etablissementId, setEtablissementId] = useState("");
+  const [etablissements, setEtablissements] = useState([]);
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const [nom, setNom] = useState("");
-    const [capacite, setCapacite] = useState("");
-    const [type, setType] = useState("");
-    const [etablissementId, setEtablissementId] = useState("");
-    const [message, setMessage] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const salleRes = await API.get(`/salles/${id}`); // Fetch specific salle
+        const etablissementsRes = await API.get("/etablissements"); // Fetch etablissements
 
-    // Simulated data
-    const etablissements = [
-        { id: 1, nom: "Lycée Jean Moulin" },
-        { id: 2, nom: "Collège Victor Hugo" },
-    ];
+        const salle = salleRes.data.data;
+        setNom(salle.nom);
+        setCapacite(salle.capacite);
+        setType(salle.type);
+        setEtablissementId(salle.etablissement_id);
 
-    useEffect(() => {
-        const fetchSalle = () => {
-            setIsLoading(true);
-            setTimeout(() => {
-                const salles = [
-                    {
-                        id: 1,
-                        nom: "Salle A",
-                        capacite: 30,
-                        type: "Classe",
-                        etablissement_id: 1,
-                    },
-                    {
-                        id: 2,
-                        nom: "Salle B",
-                        capacite: 50,
-                        type: "Laboratoire",
-                        etablissement_id: 2,
-                    },
-                ];
-                const found = salles.find((s) => s.id === parseInt(id));
-                if (found) {
-                    setNom(found.nom);
-                    setCapacite(found.capacite);
-                    setType(found.type);
-                    setEtablissementId(found.etablissement_id);
-                }
-                setIsLoading(false);
-            }, 500);
-        };
-
-        fetchSalle();
-    }, [id]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setMessage({ type: "success", text: "Salle modifiée avec succès." });
-        setTimeout(() => navigate("/salles"), 1500);
+        setEtablissements(etablissementsRes.data.data);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des données.",
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (isLoading) return <div>Chargement...</div>;
+    fetchData();
+  }, [id]);
 
-    return (
-        <>
-            {message && <Message type={message.type} text={message.text} />}
-            <Form onSubmit={handleSubmit}>
-                <Label htmlFor="nom">Nom</Label>
-                <Input
-                    name="nom"
-                    value={nom}
-                    onChange={(e) => setNom(e.target.value)}
-                    required
-                />
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await API.put(`/salles/${id}`, {
+        nom,
+        capacite,
+        type,
+        etablissement_id: etablissementId,
+      });
+      setMessage({ type: "success", text: "Salle modifiée avec succès." });
+      setTimeout(() => navigate("/salles"), 1500);
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Erreur lors de la modification.",
+      });
+    }
+  };
 
-                <Label htmlFor="capacite">Capacité</Label>
-                <Input
-                    name="capacite"
-                    type="number"
-                    value={capacite}
-                    onChange={(e) => setCapacite(e.target.value)}
-                    required
-                />
+  if (loading) return <div>Chargement...</div>;
 
-                <Label htmlFor="type">Type</Label>
-                <Select
-                    name="type"
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    options={[
-                        { value: "Classe", label: "Classe" },
-                        { value: "Laboratoire", label: "Laboratoire" },
-                        { value: "Amphithéâtre", label: "Amphithéâtre" },
-                    ]}
-                    required
-                />
+  return (
+    <>
+      {message && <Message type={message.type} text={message.text} />}
+      <Form onSubmit={handleSubmit}>
+        <Label htmlFor="nom">Nom</Label>
+        <Input
+          name="nom"
+          value={nom}
+          onChange={(e) => setNom(e.target.value)}
+          required
+        />
 
-                <Label htmlFor="etablissementId">Établissement</Label>
-                <Select
-                    name="etablissementId"
-                    value={etablissementId}
-                    onChange={(e) => setEtablissementId(e.target.value)}
-                    options={etablissements.map((e) => ({
-                        value: e.id,
-                        label: e.nom,
-                    }))}
-                    required
-                />
+        <Label htmlFor="capacite">Capacité</Label>
+        <Input
+          name="capacite"
+          type="number"
+          value={capacite}
+          onChange={(e) => setCapacite(e.target.value)}
+          required
+        />
 
-                <Button type="submit">Modifier</Button>
-            </Form>
-        </>
-    );
+        <Label htmlFor="type">Type</Label>
+        <Select
+          name="type"
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          options={[
+            { value: "Salle", label: "Salle" },
+            { value: "Atelier", label: "Atelier" },
+          ]}
+          required
+        />
+
+        <Label htmlFor="etablissementId">Établissement</Label>
+        <Select
+          name="etablissementId"
+          value={etablissementId}
+          onChange={(e) => setEtablissementId(e.target.value)}
+          options={etablissements.map((e) => ({
+            value: e.id,
+            label: e.nom,
+          }))}
+          required
+        />
+
+        <Button type="submit">Modifier</Button>
+      </Form>
+    </>
+  );
 };
 
 export default EditSalle;

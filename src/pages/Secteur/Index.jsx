@@ -2,29 +2,44 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const IndexSecteur = () => {
-  const [secteurs, setSecteurs] = useState([
-    { id: 1, nom: "Santé" },
-    { id: 2, nom: "Industrie" },
-  ]);
+  const [secteurs, setSecteurs] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
+    const fetchSecteurs = async () => {
+      try {
+        const res = await API.get("/secteurs"); // Fetch secteurs from backend
+        setSecteurs(res.data.data);
+      } catch (err) {
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement des secteurs.",
+        });
+      }
+    };
 
-  const handleDelete = (item) => {
-    setSecteurs((prev) => prev.filter((s) => s.id !== item.id));
-    setMessage({ type: "success", text: "Secteur supprimé." });
+    fetchSecteurs();
+  }, []);
+
+  const handleDelete = async (item) => {
+    try {
+      await API.delete(`/secteurs/${item.id}`); // Send DELETE request
+      setSecteurs((prev) => prev.filter((s) => s.id !== item.id)); // Remove deleted secteur
+      setMessage({ type: "success", text: "Secteur supprimé." });
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la suppression.",
+      });
+    }
   };
 
   const handleEdit = (item) => {
-    navigate(`/secteurs/edit/${item.id}`);
+    navigate(`/secteurs/edit/${item.id}`); // Navigate to edit page
   };
 
   const columns = [{ key: "nom", label: "Nom" }];

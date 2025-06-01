@@ -61,9 +61,6 @@ export default function Login() {
           className="absolute h-full w-full object-cover"
           style={{ objectPosition: '10% center' }}
         />
-        <div className="absolute top-[28px] left-8">
-          <img src={betterLogo} alt="Company Logo" className="w-32 h-auto" />
-        </div>
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">

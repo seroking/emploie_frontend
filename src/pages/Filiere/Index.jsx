@@ -2,31 +2,60 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const IndexFiliere = () => {
-  const [filieres, setFilieres] = useState([
-    { id: 1, nom: "Informatique" },
-    { id: 2, nom: "Gestion" },
-  ]);
+  const [filieres, setFilieres] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
-  const handleDelete = (item) => {
-    setFilieres((prev) => prev.filter((f) => f.id !== item.id));
-    setMessage({ type: "success", text: "Filière supprimée avec succès." });
+  useEffect(() => {
+    const fetchFilieres = async () => {
+      try {
+        const response = await API.get("/filieres"); // Fetch filieres
+        const rawFilieres = response.data.data;
+  
+        // Transformer les données pour affichage
+        const transformed = rawFilieres.map((filiere) => ({
+          ...filiere,
+          secteur_info: `${filiere.secteur?.nom}`,
+        }));
+  
+        setFilieres(transformed);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement des filières.",
+        });
+      }
+    };
+  
+    fetchFilieres();
+  }, []);
+  
+
+  const handleDelete = async (item) => {
+    try {
+      await API.delete(`/filieres/${item.id}`); // Send DELETE request
+      setFilieres((prev) => prev.filter((f) => f.id !== item.id)); // Remove deleted filiere
+      setMessage({ type: "success", text: "Filière supprimée avec succès." });
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la suppression.",
+      });
+    }
   };
 
   const handleEdit = (item) => {
     navigate(`/filieres/edit/${item.id}`);
   };
 
-  const columns = [{ key: "nom", label: "Nom" }];
+  const columns = [
+    { key: "nom", label: "Nom" },
+    { key: "secteur_info", label: "Secteur" },
+  ];
+  
 
   return (
     <div className="space-y-6">

@@ -74,7 +74,7 @@ export default function Sidebar({ open, setOpen }) {
     },
     {
       label: "Utilisateurs",
-      to: "/users",
+      to: "/utilisateurs",
       icon: <User size={18} />,
       roles: [
         "DirecteurSuper",
@@ -93,7 +93,7 @@ export default function Sidebar({ open, setOpen }) {
       label: "Filières",
       to: "/filieres",
       icon: <GraduationCap size={18} />,
-      roles: ["DirecteurSuper", "DirecteurEtablissement"],
+      roles: ["DirecteurSuper"],
     },
     {
       label: "Jours fériés",

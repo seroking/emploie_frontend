@@ -2,52 +2,54 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const IndexGroupe = () => {
-  const [groupes, setGroupes] = useState([
-    {
-      id: 1,
-      nom: "Groupe 1",
-      annee: "2023-2024",
-      filiere_id: 1,
-      filiere_nom: "Informatique",
-      etablissement_id: 1,
-      etablissement_nom: "Lycée Jean Moulin",
-    },
-    {
-      id: 2,
-      nom: "Groupe 2",
-      annee: "2023-2024",
-      filiere_id: 2,
-      filiere_nom: "Commerce",
-      etablissement_id: 2,
-      etablissement_nom: "Collège Victor Hugo",
-    },
-  ]);
+  const [groupes, setGroupes] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
+  // Fetch groupes from the backend
   useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
+    const fetchGroupes = async () => {
+      try {
+        const res = await API.get("/groupes"); // Backend endpoint
+        setGroupes(res.data.data); // Set groupes data
+      } catch (err) {
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement des groupes.",
+        });
+      }
+    };
 
-  const handleDelete = (item) => {
-    setGroupes((prev) => prev.filter((g) => g.id !== item.id));
-    setMessage({ type: "success", text: "Groupe supprimé." });
+    fetchGroupes();
+  }, []);
+
+  // Handle delete operation
+  const handleDelete = async (item) => {
+    try {
+      await API.delete(`/groupes/${item.id}`); // Backend delete endpoint
+      setGroupes((prev) => prev.filter((g) => g.id !== item.id)); // Remove deleted item
+      setMessage({ type: "success", text: "Groupe supprimé." });
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la suppression.",
+      });
+    }
   };
 
+  // Handle edit operation
   const handleEdit = (item) => {
-    navigate(`/groupes/edit/${item.id}`);
+    navigate(`/groupes/edit/${item.id}`); // Navigate to edit page
   };
 
   const columns = [
     { key: "nom", label: "Nom" },
     { key: "annee", label: "Année" },
-    { key: "filiere_nom", label: "Filière" },
-    { key: "etablissement_nom", label: "Établissement" },
+    { key: "filiere.nom", label: "Filière" },
+    { key: "etablissement.nom", label: "Établissement" },
   ];
 
   return (

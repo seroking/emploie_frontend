@@ -10,47 +10,30 @@ const IndexDirectionRegional = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let mounted = true;
-
     const fetchDirections = async () => {
       try {
-        const response = await API.get("/directions-regionales");
-        if (mounted) {
-          setDirections(response.data.data);
-        }
+        const response = await API.get("/directions-regionales"); // Fetch directions
+        setDirections(response.data.data);
       } catch (error) {
-        if (mounted) {
-          setMessage({ type: "error", text: "Erreur de chargement des directions régionales" });
-        }
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement des directions régionales.",
+        });
       }
     };
 
     fetchDirections();
-
-    return () => {
-      mounted = false;
-    };
   }, []);
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   const handleDelete = async (item) => {
     try {
       await API.delete(`/directions-regionales/${item.id}`);
       setDirections((prev) => prev.filter((d) => d.id !== item.id));
-      setMessage({ type: "success", text: "Direction régionale supprimée avec succès" });
-      
-      // Remove the automatic page reload or additional fetch
-      // Let the filter above update the UI
+      setMessage({ type: "success", text: "Direction régionale supprimée avec succès." });
     } catch (err) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Erreur lors de la suppression"
+        text: err.response?.data?.message || "Erreur lors de la suppression.",
       });
     }
   };
@@ -60,21 +43,14 @@ const IndexDirectionRegional = () => {
   };
 
   const columns = [
-    { 
-      key: "nom", 
-      label: "Nom",
-      render: (item) => item.nom || "N/A"
+    { key: "nom", label: "Nom" },
+    { key: "adresse", label: "Adresse" },
+    { key: "telephone", label: "Téléphone" },
+    {
+      key: "directeur.utilisateur.nom",
+      label: "Directeur Régional",
+      render: (item) => item.directeur?.utilisateur?.nom || "N/A",
     },
-    { 
-      key: "adresse", 
-      label: "Adresse",
-      render: (item) => item.adresse || "N/A"
-    },
-    { 
-      key: "telephone", 
-      label: "Téléphone",
-      render: (item) => item.telephone || "N/A"
-    }
   ];
 
   return (

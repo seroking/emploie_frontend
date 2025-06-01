@@ -5,63 +5,85 @@ import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const EditFerie = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [ferie, setFerie] = useState(null);
+  const [nom, setNom] = useState("");
+  const [dateDebut, setDateDebut] = useState("");
+  const [dateFin, setDateFin] = useState("");
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Exemple de données simulées
-    const feries = [
-      { id: 1, nom: "Noël", date_debut: "2025-12-24", date_fin: "2025-12-26" },
-      {
-        id: 2,
-        nom: "Nouvel An",
-        date_debut: "2026-01-01",
-        date_fin: "2026-01-01",
-      },
-    ];
-    const found = feries.find((f) => f.id === parseInt(id));
-    if (found) setFerie(found);
-    else setFerie(null);
+    const fetchFerie = async () => {
+      try {
+        const response = await API.get(`/feries/${id}`); // Fetch specific ferie
+        const ferie = response.data.data;
+        setNom(ferie.nom);
+        setDateDebut(ferie.date_debut);
+        setDateFin(ferie.date_fin);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des données.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFerie();
   }, [id]);
 
-  const handleChange = (e) => {
-    setFerie({ ...ferie, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Jour férié modifié avec succès." });
-    setTimeout(() => navigate("/feries"), 1500);
+    try {
+      await API.put(`/feries/${id}`, {
+        nom,
+        date_debut: dateDebut,
+        date_fin: dateFin,
+      });
+      setMessage({ type: "success", text: "Jour férié modifié avec succès." });
+      setTimeout(() => navigate("/feries"), 1500);
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Erreur lors de la modification.",
+      });
+    }
   };
 
-  if (!ferie) return <div>Chargement...</div>;
+  if (loading) return <div>Chargement...</div>;
 
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
       <Form onSubmit={handleSubmit}>
         <Label htmlFor="nom">Nom</Label>
-        <Input name="nom" value={ferie.nom} onChange={handleChange} required />
-
-        <Label htmlFor="date_debut">Date de début</Label>
         <Input
-          type="date"
-          name="date_debut"
-          value={ferie.date_debut}
-          onChange={handleChange}
+          name="nom"
+          value={nom}
+          onChange={(e) => setNom(e.target.value)}
           required
         />
 
-        <Label htmlFor="date_fin">Date de fin</Label>
+        <Label htmlFor="dateDebut">Date de début</Label>
         <Input
+          name="dateDebut"
           type="date"
-          name="date_fin"
-          value={ferie.date_fin}
-          onChange={handleChange}
+          value={dateDebut}
+          onChange={(e) => setDateDebut(e.target.value)}
+          required
+        />
+
+        <Label htmlFor="dateFin">Date de fin</Label>
+        <Input
+          name="dateFin"
+          type="date"
+          value={dateFin}
+          onChange={(e) => setDateFin(e.target.value)}
           required
         />
 

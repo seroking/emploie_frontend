@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
@@ -11,31 +12,34 @@ const CreateDirectionRegional = () => {
   const [nom, setNom] = useState("");
   const [adresse, setAdresse] = useState("");
   const [telephone, setTelephone] = useState("");
+  const [directeurRegionalId, setDirecteurRegionalId] = useState("");
+  const [directeurs, setDirecteurs] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
+  const fetchDirecteurs = async () => {
+    try {
+      const response = await API.get("/directions-regionales");
+      setDirecteurs(response.data.directeurRegionals);
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors du chargement des directeurs régionaux.",
+      });
+    }
+  };
+  useEffect(() => {
+    fetchDirecteurs();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Add validation
-    if (!nom.trim()) {
-      setMessage({ type: "error", text: "Le nom est requis." });
-      return;
-    }
-    if (!adresse.trim()) {
-      setMessage({ type: "error", text: "L'adresse est requise." });
-      return;
-    }
-    if (!telephone.trim()) {
-      setMessage({ type: "error", text: "Le téléphone est requis." });
-      return;
-    }
-
     try {
       await API.post("/directions-regionales", {
-        nom: nom.trim(),
-        adresse: adresse.trim(),
-        telephone: telephone.trim(),
+        nom,
+        adresse,
+        telephone,
+        directeur_regional_id: directeurRegionalId,
       });
       setMessage({ type: "success", text: "Direction régionale créée avec succès." });
       setTimeout(() => navigate("/directions-regionales"), 1500);
@@ -56,7 +60,7 @@ const CreateDirectionRegional = () => {
           name="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
-          placeholder="Nom de la direction"
+          required
         />
 
         <Label htmlFor="adresse">Adresse</Label>
@@ -64,7 +68,7 @@ const CreateDirectionRegional = () => {
           name="adresse"
           value={adresse}
           onChange={(e) => setAdresse(e.target.value)}
-          placeholder="Adresse complète"
+          required
         />
 
         <Label htmlFor="telephone">Téléphone</Label>
@@ -72,7 +76,19 @@ const CreateDirectionRegional = () => {
           name="telephone"
           value={telephone}
           onChange={(e) => setTelephone(e.target.value)}
-          placeholder="Numéro de téléphone"
+          required
+        />
+
+        <Label htmlFor="directeurRegionalId">Directeur Régional</Label>
+        <Select
+          name="directeurRegionalId"
+          value={directeurRegionalId}
+          onChange={(e) => setDirecteurRegionalId(e.target.value)}
+          options={directeurs.map((d) => ({
+            value: d.id,
+            label: d.nom,
+          }))}
+          required
         />
 
         <Button type="submit">Créer</Button>

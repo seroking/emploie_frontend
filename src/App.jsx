@@ -81,9 +81,9 @@ function AppLayout({ sidebarOpen, setSidebarOpen }) {
             <Route path="/formateurs/edit/:id" element={<EditFormateur />} />
 
             {/* User */}
-            <Route path="/users" element={<IndexUser />} />
-            <Route path="/users/create" element={<CreateUser />} />
-            <Route path="/users/edit/:id" element={<EditUser />} />
+            <Route path="/utilisateurs" element={<IndexUser />} />
+            <Route path="/utilisateurs/create" element={<CreateUser />} />
+            <Route path="/utilisateurs/edit/:id" element={<EditUser />} />
 
             {/* Filiere */}
             <Route path="/filieres" element={<IndexFiliere />} />

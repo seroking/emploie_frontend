@@ -12,19 +12,18 @@ const CreateUser = () => {
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("Formateur");
+  const [role, setRole] = useState("");
   const [creatableRoles, setCreatableRoles] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch creatable roles from the backend
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await API.get("/users");
-        if (response.data.creatable_roles) {
+        const response = await API.get("/utilisateurs"); // Fetch creatable roles
+        if (response.data.roles) {
           setCreatableRoles(
-            response.data.creatable_roles.map((role) => ({
+            response.data.roles.map((role) => ({
               value: role,
               label: role,
             }))
@@ -33,17 +32,18 @@ const CreateUser = () => {
       } catch (error) {
         setMessage({
           type: "error",
-          text: "Erreur lors du chargement des rôles disponibles",
+          text: "Erreur lors du chargement des rôles disponibles.",
         });
       }
     };
+
     fetchRoles();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!nom.trim() || !email.trim() || !password.trim()) {
+    if (!nom.trim() || !email.trim() || !password.trim() || !role.trim()) {
       setMessage({ type: "error", text: "Tous les champs sont requis." });
       return;
     }
@@ -53,15 +53,15 @@ const CreateUser = () => {
         nom: nom.trim(),
         email: email.trim(),
         password: password,
-        role,
+        role: role,
       });
 
       setMessage({ type: "success", text: "Utilisateur créé avec succès." });
-      setTimeout(() => navigate("/users"), 1500);
+      setTimeout(() => navigate("/utilisateurs"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Erreur lors de la création",
+        text: err.response?.data?.message || "Erreur lors de la création.",
       });
     }
   };
@@ -99,7 +99,7 @@ const CreateUser = () => {
         <Label htmlFor="role">Rôle</Label>
         <Select
           name="role"
-          options={creatableRoles}
+          options={[{ value: "", label: "Sélectionnez un rôle" }, ...creatableRoles]}
           value={role}
           onChange={(e) => setRole(e.target.value)}
           required

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
@@ -6,30 +6,52 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const CreateGroupe = () => {
   const [nom, setNom] = useState("");
   const [annee, setAnnee] = useState("");
   const [filiereId, setFiliereId] = useState("");
   const [etablissementId, setEtablissementId] = useState("");
+  const [filieres, setFilieres] = useState([]);
+  const [etablissements, setEtablissements] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  // Simule les données (à remplacer par API ou contexte réel)
-  const filieres = [
-    { id: 1, nom: "Informatique" },
-    { id: 2, nom: "Commerce" },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await API.get("/groupes");
+        setFilieres(res.data.filiere);
+        setEtablissements([res.data.etablissement]); // Backend returns a single etablissement
+      } catch (err) {
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement des données.",
+        });
+      }
+    };
 
-  const etablissements = [
-    { id: 1, nom: "Lycée Jean Moulin" },
-    { id: 2, nom: "Collège Victor Hugo" },
-  ];
+    fetchData();
+  }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Groupe créé avec succès." });
-    setTimeout(() => navigate("/groupes"), 1500);
+    try {
+      await API.post("/groupes", {
+        nom,
+        annee,
+        filiere_id: filiereId,
+        etablissement_id: etablissementId,
+      });
+      setMessage({ type: "success", text: "Groupe créé avec succès." });
+      setTimeout(() => navigate("/groupes"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la création.",
+      });
+    }
   };
 
   return (
@@ -49,7 +71,7 @@ const CreateGroupe = () => {
           name="annee"
           value={annee}
           onChange={(e) => setAnnee(e.target.value)}
-          placeholder="2023-2024"
+          placeholder="2023"
           required
         />
 

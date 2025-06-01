@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
@@ -13,43 +14,52 @@ const EditDirectionRegional = () => {
   const [nom, setNom] = useState("");
   const [adresse, setAdresse] = useState("");
   const [telephone, setTelephone] = useState("");
+  const [directeurRegionalId, setDirecteurRegionalId] = useState("");
+  const [directeurs, setDirecteurs] = useState([]);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDirection = async () => {
+    const fetchData = async () => {
       try {
-        const response = await API.get(`/directions-regionales/${id}`);
-        const direction = response.data.data;
+        const directionRes = await API.get(`/directions-regionales/${id}`);
+        const directeursRes = await API.get("/directeurs-regionales");
+
+        const direction = directionRes.data.data;
         setNom(direction.nom);
         setAdresse(direction.adresse);
         setTelephone(direction.telephone);
+        setDirecteurRegionalId(direction.directeur_regional_id);
+
+        setDirecteurs(directeursRes.data.data);
       } catch (error) {
-        setMessage({ 
-          type: "error", 
-          text: "Erreur lors du chargement de la direction régionale" 
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des données.",
         });
       } finally {
         setLoading(false);
       }
     };
-    fetchDirection();
+
+    fetchData();
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await API.put(`/directions-regionales/${id}`, {
-        nom: nom.trim(),
-        adresse: adresse.trim(),
-        telephone: telephone.trim(),
+        nom,
+        adresse,
+        telephone,
+        directeur_regional_id: directeurRegionalId,
       });
-      setMessage({ type: "success", text: "Direction régionale modifiée avec succès" });
+      setMessage({ type: "success", text: "Direction régionale modifiée avec succès." });
       setTimeout(() => navigate("/directions-regionales"), 1500);
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Erreur lors de la modification"
+        text: error.response?.data?.message || "Erreur lors de la modification.",
       });
     }
   };
@@ -62,7 +72,7 @@ const EditDirectionRegional = () => {
       <Form onSubmit={handleSubmit}>
         <Label htmlFor="nom">Nom</Label>
         <Input
-          id="nom"
+          name="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
           required
@@ -70,7 +80,7 @@ const EditDirectionRegional = () => {
 
         <Label htmlFor="adresse">Adresse</Label>
         <Input
-          id="adresse"
+          name="adresse"
           value={adresse}
           onChange={(e) => setAdresse(e.target.value)}
           required
@@ -78,9 +88,21 @@ const EditDirectionRegional = () => {
 
         <Label htmlFor="telephone">Téléphone</Label>
         <Input
-          id="telephone"
+          name="telephone"
           value={telephone}
           onChange={(e) => setTelephone(e.target.value)}
+          required
+        />
+
+        <Label htmlFor="directeurRegionalId">Directeur Régional</Label>
+        <Select
+          name="directeurRegionalId"
+          value={directeurRegionalId}
+          onChange={(e) => setDirecteurRegionalId(e.target.value)}
+          options={directeurs.map((d) => ({
+            value: d.id,
+            label: d.utilisateur.nom,
+          }))}
           required
         />
 

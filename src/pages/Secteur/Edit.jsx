@@ -5,6 +5,7 @@ import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const EditSecteur = () => {
   const { id } = useParams();
@@ -14,25 +15,35 @@ const EditSecteur = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSecteur = () => {
-      setTimeout(() => {
-        const secteurs = [
-          { id: 1, nom: "Santé" },
-          { id: 2, nom: "Industrie" },
-        ];
-        const found = secteurs.find((s) => s.id === parseInt(id));
-        if (found) setNom(found.nom);
+    const fetchSecteur = async () => {
+      try {
+        const res = await API.get(`/secteurs/${id}`); // Fetch secteur by ID
+        setNom(res.data.data.nom);
+      } catch (err) {
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement du secteur.",
+        });
+      } finally {
         setIsLoading(false);
-      }, 500);
+      }
     };
 
     fetchSecteur();
   }, [id]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Secteur modifié avec succès." });
-    setTimeout(() => navigate("/secteurs"), 1500);
+    try {
+      await API.put(`/secteurs/${id}`, { nom }); // Send PUT request to update secteur
+      setMessage({ type: "success", text: "Secteur modifié avec succès." });
+      setTimeout(() => navigate("/secteurs"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la modification.",
+      });
+    }
   };
 
   if (isLoading) return <div>Chargement...</div>;

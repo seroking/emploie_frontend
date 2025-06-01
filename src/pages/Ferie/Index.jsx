@@ -2,30 +2,40 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const IndexFerie = () => {
-  const [feries, setFeries] = useState([
-    { id: 1, nom: "Noël", date_debut: "2025-12-24", date_fin: "2025-12-26" },
-    {
-      id: 2,
-      nom: "Nouvel An",
-      date_debut: "2026-01-01",
-      date_fin: "2026-01-01",
-    },
-  ]);
+  const [feries, setFeries] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
+    const fetchFeries = async () => {
+      try {
+        const response = await API.get("/feries"); // Fetch feries
+        setFeries(response.data.data);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur de chargement des jours fériés.",
+        });
+      }
+    };
 
-  const handleDelete = (item) => {
-    setFeries((prev) => prev.filter((f) => f.id !== item.id));
-    setMessage({ type: "success", text: "Jour férié supprimé." });
+    fetchFeries();
+  }, []);
+
+  const handleDelete = async (item) => {
+    try {
+      await API.delete(`/feries/${item.id}`); // Send DELETE request
+      setFeries((prev) => prev.filter((f) => f.id !== item.id)); // Remove deleted ferie
+      setMessage({ type: "success", text: "Jour férié supprimé avec succès." });
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la suppression.",
+      });
+    }
   };
 
   const handleEdit = (item) => {

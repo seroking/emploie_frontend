@@ -10,28 +10,26 @@ const IndexComplexe = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    API.get("/complexes")
-      .then((res) => {
-        //console.log("GET /complexes →", res.data);
-        setComplexes(res.data.data)})
-      .catch(() =>
-        setMessage({ type: "error", text: "Erreur de chargement des complexes." })
-      );
-  }, []);
+    const fetchComplexes = async () => {
+      try {
+        const response = await API.get("/complexes"); // Fetch complexes
+        setComplexes(response.data.data);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des complexes.",
+        });
+      }
+    };
 
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
+    fetchComplexes();
+  }, []);
 
   const handleDelete = async (item) => {
     try {
-      await API.delete(`/complexes/${item.id}`);
-      console.log("DELETE /complexes →", item);
-      setComplexes((prev) => prev.filter((c) => c.id !== item.id)); // <-- IMPORTANT
-      setMessage({ type: "success", text: "Complexe supprimé." });
+      await API.delete(`/complexes/${item.id}`); // Send DELETE request
+      setComplexes((prev) => prev.filter((c) => c.id !== item.id)); // Remove deleted complexe
+      setMessage({ type: "success", text: "Complexe supprimé avec succès." });
     } catch (err) {
       setMessage({
         type: "error",
@@ -46,7 +44,7 @@ const IndexComplexe = () => {
 
   const columns = [
     { key: "nom", label: "Nom" },
-    { key: "direction_regional_id", label: "Direction Régionale" },
+    { key: "direction_regional.nom", label: "Direction Régionale" },
   ];
 
   return (
@@ -55,9 +53,9 @@ const IndexComplexe = () => {
         <h1 className="text-2xl font-bold">Liste des complexes</h1>
         <button
           onClick={() => navigate("/complexes/create")}
-          className="justify-end w-auto px-4 py-2 cursor-pointer rounded-xl bg-gradient-to-r from-indigo-600 to-purple-400 text-white font-semibold shadow-md hover:opacity-90 transition"
+          className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-400 text-white font-semibold shadow-md hover:opacity-90 transition"
         >
-          + Créer un complexe
+          + Ajouter un complexe
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}

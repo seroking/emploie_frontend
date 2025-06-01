@@ -12,7 +12,7 @@ const IndexSemaine = () => {
   useEffect(() => {
     const fetchSemaines = async () => {
       try {
-        const res = await API.get("/semaines");
+        const res = await API.get("/semaines"); // Fetch semaines
         setSemaines(res.data.data);
       } catch (err) {
         setMessage({
@@ -27,8 +27,8 @@ const IndexSemaine = () => {
 
   const handleDelete = async (item) => {
     try {
-      await API.delete(`/semaines/${item.id}`);
-      setSemaines((prev) => prev.filter((s) => s.id !== item.id));
+      await API.delete(`/semaines/${item.id}`); // Send DELETE request
+      setSemaines((prev) => prev.filter((s) => s.id !== item.id)); // Remove deleted semaine
       setMessage({ type: "success", text: "Semaine supprimée." });
     } catch (err) {
       setMessage({

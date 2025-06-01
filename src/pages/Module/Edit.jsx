@@ -6,116 +6,139 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const EditModule = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    const [nom, setNom] = useState("");
-    const [code, setCode] = useState("");
-    const [semestre, setSemestre] = useState("");
-    const [enseignantId, setEnseignantId] = useState("");
-    const [message, setMessage] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+  const [nom, setNom] = useState("");
+  const [masseHorairePresentiel, setMasseHorairePresentiel] = useState("");
+  const [masseHoraireDistanciel, setMasseHoraireDistanciel] = useState("");
+  const [typeEfm, setTypeEfm] = useState("");
+  const [semestre, setSemestre] = useState("");
+  const [filiereId, setFiliereId] = useState("");
+  const [filieres, setFilieres] = useState([]);
+  const [message, setMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-    // Simulated data
-    const enseignants = [
-        { id: 1, nom: "Mme Dupont" },
-        { id: 2, nom: "M. Martin" },
-    ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const filieresRes = await API.get("/filieres"); // Fetch filieres
+        setFilieres(filieresRes.data.data);
 
-    useEffect(() => {
-        const fetchModule = () => {
-            setIsLoading(true);
-            setTimeout(() => {
-                const modules = [
-                    {
-                        id: 1,
-                        nom: "Mathématiques",
-                        code: "MATH101",
-                        semestre: "S1",
-                        enseignant_id: 1,
-                    },
-                    {
-                        id: 2,
-                        nom: "Physique",
-                        code: "PHY101",
-                        semestre: "S2",
-                        enseignant_id: 2,
-                    },
-                ];
-                const found = modules.find((m) => m.id === parseInt(id));
-                if (found) {
-                    setNom(found.nom);
-                    setCode(found.code);
-                    setSemestre(found.semestre);
-                    setEnseignantId(found.enseignant_id);
-                }
-                setIsLoading(false);
-            }, 500);
-        };
-
-        fetchModule();
-    }, [id]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setMessage({ type: "success", text: "Module modifié avec succès." });
-        setTimeout(() => navigate("/modules"), 1500);
+        const moduleRes = await API.get(`/modules/${id}`); // Fetch module
+        const module = moduleRes.data.data;
+        setNom(module.nom);
+        setMasseHorairePresentiel(module.masse_horaire_presentiel);
+        setMasseHoraireDistanciel(module.masse_horaire_distanciel);
+        setTypeEfm(module.type_efm);
+        setSemestre(module.semestre);
+        setFiliereId(module.filiere_id);
+      } catch (err) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des données.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    if (isLoading) return <div>Chargement...</div>;
+    fetchData();
+  }, [id]);
 
-    return (
-        <>
-            {message && <Message type={message.type} text={message.text} />}
-            <Form onSubmit={handleSubmit}>
-                <Label htmlFor="nom">Nom</Label>
-                <Input
-                    name="nom"
-                    value={nom}
-                    onChange={(e) => setNom(e.target.value)}
-                    required
-                />
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await API.put(`/modules/${id}`, {
+        nom,
+        masse_horaire_presentiel: masseHorairePresentiel,
+        masse_horaire_distanciel: masseHoraireDistanciel,
+        type_efm: typeEfm,
+        semestre,
+        filiere_id: filiereId,
+      });
+      setMessage({ type: "success", text: "Module modifié avec succès." });
+      setTimeout(() => navigate("/modules"), 1500);
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Erreur lors de la modification.",
+      });
+    }
+  };
 
-                <Label htmlFor="code">Code</Label>
-                <Input
-                    name="code"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    required
-                />
+  if (isLoading) return <div>Chargement...</div>;
 
-                <Label htmlFor="semestre">Semestre</Label>
-                <Select
-                    name="semestre"
-                    value={semestre}
-                    onChange={(e) => setSemestre(e.target.value)}
-                    options={[
-                        { value: "S1", label: "Semestre 1" },
-                        { value: "S2", label: "Semestre 2" },
-                        { value: "S3", label: "Semestre 3" },
-                        { value: "S4", label: "Semestre 4" },
-                    ]}
-                    required
-                />
+  return (
+    <>
+      {message && <Message type={message.type} text={message.text} />}
+      <Form onSubmit={handleSubmit}>
+        <Label htmlFor="nom">Nom du module</Label>
+        <Input
+          name="nom"
+          value={nom}
+          onChange={(e) => setNom(e.target.value)}
+          required
+        />
 
-                <Label htmlFor="enseignantId">Enseignant</Label>
-                <Select
-                    name="enseignantId"
-                    value={enseignantId}
-                    onChange={(e) => setEnseignantId(e.target.value)}
-                    options={enseignants.map((e) => ({
-                        value: e.id,
-                        label: e.nom,
-                    }))}
-                    required
-                />
+        <Label htmlFor="masseHorairePresentiel">Masse horaire présentiel</Label>
+        <Input
+          name="masseHorairePresentiel"
+          type="number"
+          value={masseHorairePresentiel}
+          onChange={(e) => setMasseHorairePresentiel(e.target.value)}
+          required
+        />
 
-                <Button type="submit">Modifier</Button>
-            </Form>
-        </>
-    );
+        <Label htmlFor="masseHoraireDistanciel">Masse horaire distanciel</Label>
+        <Input
+          name="masseHoraireDistanciel"
+          type="number"
+          value={masseHoraireDistanciel}
+          onChange={(e) => setMasseHoraireDistanciel(e.target.value)}
+          required
+        />
+
+        <Label htmlFor="typeEfm">Type EFM</Label>
+        <Select
+          name="typeEfm"
+          value={typeEfm}
+          onChange={(e) => setTypeEfm(e.target.value)}
+          options={[
+            { value: "Regional", label: "Régional" },
+            { value: "Local", label: "Local" },
+          ]}
+          required
+        />
+
+        <Label htmlFor="semestre">Semestre</Label>
+        <Select
+          name="semestre"
+          value={semestre}
+          onChange={(e) => setSemestre(e.target.value)}
+          options={[
+            { value: "S1", label: "Semestre 1" },
+            { value: "S2", label: "Semestre 2" },
+          ]}
+          required
+        />
+
+        <Label htmlFor="filiereId">Filière</Label>
+        <Select
+          name="filiereId"
+          value={filiereId}
+          onChange={(e) => setFiliereId(e.target.value)}
+          options={filieres.map((f) => ({ value: f.id, label: f.nom }))}
+          required
+        />
+
+        <Button type="submit">Modifier</Button>
+      </Form>
+    </>
+  );
 };
 
 export default EditModule;

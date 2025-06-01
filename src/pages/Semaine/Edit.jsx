@@ -23,10 +23,10 @@ const EditSemaine = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const anneesRes = await API.get("/annees-scolaires");
+        const anneesRes = await API.get("/annees-scolaires"); // Fetch années scolaires
         setAnneesScolaires(anneesRes.data.data);
 
-        const semaineRes = await API.get(`/semaines/${id}`);
+        const semaineRes = await API.get(`/semaines/${id}`); // Fetch semaine
         const semaine = semaineRes.data.data;
         setNumeroSemaine(semaine.numero_semaine);
         setDateDebut(semaine.date_debut);

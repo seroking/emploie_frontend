@@ -6,7 +6,7 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
-import API from "../../services/api"; // Assurez-vous que le chemin d'importation est correct
+import API from "../../services/api";
 
 const EditUser = () => {
   const { id } = useParams();
@@ -14,44 +14,45 @@ const EditUser = () => {
 
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("Formateur");
+  const [role, setRole] = useState("");
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await API.get(`/users/${id}`);
+        const response = await API.get(`/utilisateurs/${id}`); // Correct endpoint
         const user = response.data.data;
         setNom(user.nom);
         setEmail(user.email);
         setRole(user.role);
         setLoading(false);
       } catch (error) {
-        setMessage({ 
-          type: "error", 
-          text: "Erreur lors du chargement de l'utilisateur" 
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement de l'utilisateur.",
         });
         setLoading(false);
       }
     };
+
     fetchUser();
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await API.put(`/users/${id}`, {
+      await API.put(`/utilisateurs/${id}`, {
         nom,
         email,
-        role
-      });
+        role,
+      }); // Correct endpoint
       setMessage({ type: "success", text: "Utilisateur modifié avec succès." });
       setTimeout(() => navigate("/users"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Erreur lors de la modification"
+        text: err.response?.data?.message || "Erreur lors de la modification.",
       });
     }
   };
@@ -67,6 +68,7 @@ const EditUser = () => {
           name="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
+          required
         />
 
         <Label htmlFor="email">Email</Label>
@@ -74,17 +76,23 @@ const EditUser = () => {
           name="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
 
         <Label htmlFor="role">Rôle</Label>
         <Select
           name="role"
           options={[
+            { value: "DirecteurSuper", label: "Directeur Super" },
+            { value: "DirecteurRegional", label: "Directeur Régional" },
+            { value: "DirecteurComplexe", label: "Directeur Complexe" },
+            { value: "DirecteurEtablissement", label: "Directeur Établissement" },
             { value: "Formateur", label: "Formateur" },
-            { value: "Directeur", label: "Directeur" },
+            { value: "Stagiaire", label: "Stagiaire" },
           ]}
           value={role}
           onChange={(e) => setRole(e.target.value)}
+          required
         />
 
         <Button type="submit">Modifier</Button>
