@@ -19,19 +19,17 @@ const CreateComplexe = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchOptions = async () => {
       try {
-        const directionsRes = await API.get("/directions-regionales");
+        const res = await API.get("/complexes");
         setDirections(
-          directionsRes.data.data.map((d) => ({
+          res.data.direction_regionales.map((d) => ({
             value: d.id,
             label: d.nom,
           }))
         );
-
-        const directeursRes = await API.get("/directeurs-complexes");
         setDirecteursComplexes(
-          directeursRes.data.data.map((dc) => ({
+          res.data.directeur_complexes.map((dc) => ({
             value: dc.id,
             label: dc.utilisateur.nom,
           }))
@@ -39,12 +37,12 @@ const CreateComplexe = () => {
       } catch (err) {
         setMessage({
           type: "error",
-          text: "Erreur lors du chargement des données.",
+          text: "Erreur lors du chargement des options.",
         });
       }
     };
 
-    fetchData();
+    fetchOptions();
   }, []);
 
   const handleSubmit = async (e) => {

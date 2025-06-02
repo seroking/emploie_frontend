@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
-import Select from "../../components/ui/Select";
 import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
@@ -12,70 +12,66 @@ const EditFormateur = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // États pour chaque champ
+  const [specialite, setSpecialite] = useState("");
+  const [heuresHebdomadaire, setHeuresHebdomadaire] = useState("");
   const [utilisateurId, setUtilisateurId] = useState("");
   const [etablissementId, setEtablissementId] = useState("");
-  const [specialite, setSpecialite] = useState("");
-  const [heuresHebdo, setHeuresHebdo] = useState("");
+  const [complexeId, setComplexeId] = useState("");
+  const [directionRegionalId, setDirectionRegionalId] = useState("");
+
+  // Options pour les selects
   const [utilisateurs, setUtilisateurs] = useState([]);
   const [etablissements, setEtablissements] = useState([]);
+  const [complexes, setComplexes] = useState([]);
+  const [directionsRegionales, setDirectionsRegionales] = useState([]);
+
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const formateurRes = await API.get(`/formateurs/${id}`);
-        const utilisateursRes = await API.get("/utilisateurs");
-        const etablissementsRes = await API.get("/etablissements");
+    const fetchOptions = API.get("/formateurs");
+    const fetchFormateur = API.get(`/formateurs/${id}`);
 
-        const formateur = formateurRes.data.data;
-        setUtilisateurId(formateur.utilisateur_id);
-        setEtablissementId(formateur.etablissement_id);
-        setSpecialite(formateur.specialite);
-        setHeuresHebdo(formateur.heures_hebdomadaire);
+    Promise.all([fetchOptions, fetchFormateur])
+      .then(([optionsRes, formateurRes]) => {
+        // Charger les options des selects
+        setUtilisateurs(optionsRes.data.utilisateurs || []);
+        setEtablissements(optionsRes.data.etablissements || []);
+        setComplexes(optionsRes.data.complexes || []);
+        setDirectionsRegionales(optionsRes.data.direction_regionales || []);
 
-        setUtilisateurs(
-          utilisateursRes.data.data.map((u) => ({
-            value: u.id,
-            label: u.nom,
-          }))
-        );
-
-        setEtablissements(
-          etablissementsRes.data.data.map((e) => ({
-            value: e.id,
-            label: e.nom,
-          }))
-        );
-      } catch (error) {
-        setMessage({
-          type: "error",
-          text: "Erreur lors du chargement des données.",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+        // Préremplir le formulaire avec le formateur récupéré
+        const f = formateurRes.data.data;
+        setSpecialite(f.specialite || "");
+        setHeuresHebdomadaire(f.heures_hebdomadaire?.toString() || "");
+        setUtilisateurId(f.utilisateur_id || "");
+        setEtablissementId(f.etablissement_id || "");
+        setComplexeId(f.complexe_id || "");
+        setDirectionRegionalId(f.direction_regional_id || "");
+      })
+      .catch(() => {
+        setMessage({ type: "error", text: "Erreur lors du chargement des données." });
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       await API.put(`/formateurs/${id}`, {
+        specialite,
+        heures_hebdomadaire: Number(heuresHebdomadaire),
         utilisateur_id: utilisateurId,
         etablissement_id: etablissementId,
-        specialite,
-        heures_hebdomadaire: heuresHebdo,
+        complexe_id: complexeId,
+        direction_regional_id: directionRegionalId,
       });
       setMessage({ type: "success", text: "Formateur modifié avec succès." });
       setTimeout(() => navigate("/formateurs"), 1500);
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: "Erreur lors de la modification du formateur.",
-      });
+      setMessage({ type: "error", text: error.response?.data?.message || "Erreur lors de la modification." });
     }
   };
 
@@ -84,32 +80,59 @@ const EditFormateur = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
-        <Label>Utilisateur</Label>
-        <Select
-          value={utilisateurId}
-          onChange={(e) => setUtilisateurId(e.target.value)}
-          options={utilisateurs}
-        />
-
-        <Label>Établissement</Label>
-        <Select
-          value={etablissementId}
-          onChange={(e) => setEtablissementId(e.target.value)}
-          options={etablissements}
-        />
-
-        <Label>Spécialité</Label>
+      <Form onSubmit={handleSubmit} className="space-y-4">
+        <Label htmlFor="specialite">Spécialité</Label>
         <Input
+          name="specialite"
           value={specialite}
           onChange={(e) => setSpecialite(e.target.value)}
+          required
         />
 
-        <Label>Heures Hebdomadaires</Label>
+        <Label htmlFor="heures_hebdomadaire">Heures Hebdomadaires</Label>
         <Input
+          name="heures_hebdomadaire"
           type="number"
-          value={heuresHebdo}
-          onChange={(e) => setHeuresHebdo(e.target.value)}
+          value={heuresHebdomadaire}
+          onChange={(e) => setHeuresHebdomadaire(e.target.value)}
+          min={1}
+          required
+        />
+
+        <Label htmlFor="utilisateur_id">Utilisateur</Label>
+        <Select
+          name="utilisateur_id"
+          value={utilisateurId}
+          onChange={(e) => setUtilisateurId(e.target.value)}
+          options={utilisateurs.map((u) => ({ value: u.id, label: u.nom }))}
+          required
+        />
+
+        <Label htmlFor="etablissement_id">Établissement</Label>
+        <Select
+          name="etablissement_id"
+          value={etablissementId}
+          onChange={(e) => setEtablissementId(e.target.value)}
+          options={etablissements.map((e) => ({ value: e.id, label: e.nom }))}
+          required
+        />
+
+        <Label htmlFor="complexe_id">Complexe</Label>
+        <Select
+          name="complexe_id"
+          value={complexeId}
+          onChange={(e) => setComplexeId(e.target.value)}
+          options={complexes.map((c) => ({ value: c.id, label: c.nom }))}
+          required
+        />
+
+        <Label htmlFor="direction_regional_id">Direction Régionale</Label>
+        <Select
+          name="direction_regional_id"
+          value={directionRegionalId}
+          onChange={(e) => setDirectionRegionalId(e.target.value)}
+          options={directionsRegionales.map((d) => ({ value: d.id, label: d.nom }))}
+          required
         />
 
         <Button type="submit">Modifier</Button>

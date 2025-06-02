@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
@@ -25,30 +25,47 @@ const EditEtablissement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [etablissement, directeursRes, complexesRes] = await Promise.all([
-          API.get(`/etablissements/${id}`),
-          API.get("/directeur-etablissements"),
-          API.get("/complexes")
-        ]);
-        
-        const data = etablissement.data.data;
-        setNom(data.nom);
-        setAdresse(data.adresse);
-        setTelephone(data.telephone);
-        setDirecteurId(data.directeur_etablissement_id);
-        setComplexeId(data.complexe_id);
-        
-        setDirecteurs(directeursRes.data.data);
-        setComplexes(complexesRes.data.data);
-      } catch (error) {
-        setMessage({ 
-          type: "error", 
-          text: "Erreur lors du chargement des données" 
-        });
-      } finally {
+        // Récupération des options (directeurs + complexe)
+        const optionsRes = await API.get("/etablissements");
+
+        // Récupération des données précises de l'établissement
+        const etabRes = await API.get(`/etablissements/${id}`);
+
+        const etab = etabRes.data.data;
+
+        setNom(etab.nom);
+        setAdresse(etab.adresse);
+        setTelephone(etab.telephone);
+        setDirecteurId(etab.directeur_etablissement_id);
+        setComplexeId(etab.complexe_id);
+
+        // Mapping des directeurs (tableau)
+        setDirecteurs(
+          optionsRes.data.directeurs.map((d) => ({
+            value: d.id,
+            label: d.utilisateur.nom,
+          }))
+        );
+
+        // Complexe est un objet, on le transforme en tableau avec 1 élément
+        if (optionsRes.data.complexe) {
+          setComplexes([
+            {
+              value: optionsRes.data.complexe.id,
+              label: optionsRes.data.complexe.nom,
+            },
+          ]);
+        } else {
+          setComplexes([]);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        setMessage({ type: "error", text: "Erreur lors du chargement." });
         setLoading(false);
       }
     };
+
     fetchData();
   }, [id]);
 
@@ -56,19 +73,16 @@ const EditEtablissement = () => {
     e.preventDefault();
     try {
       await API.put(`/etablissements/${id}`, {
-        nom: nom.trim(),
-        adresse: adresse.trim(),
-        telephone: telephone.trim(),
+        nom,
+        adresse,
+        telephone,
         directeur_etablissement_id: directeurId,
-        complexe_id: complexeId
+        complexe_id: complexeId,
       });
-      setMessage({ type: "success", text: "Établissement modifié avec succès." });
+      setMessage({ type: "success", text: "Établissement modifié." });
       setTimeout(() => navigate("/etablissements"), 1500);
     } catch (err) {
-      setMessage({
-        type: "error",
-        text: err.response?.data?.message || "Erreur lors de la modification"
-      });
+      setMessage({ type: "error", text: "Erreur de modification." });
     }
   };
 
@@ -83,7 +97,6 @@ const EditEtablissement = () => {
           name="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
-          required
         />
 
         <Label htmlFor="adresse">Adresse</Label>
@@ -91,7 +104,6 @@ const EditEtablissement = () => {
           name="adresse"
           value={adresse}
           onChange={(e) => setAdresse(e.target.value)}
-          required
         />
 
         <Label htmlFor="telephone">Téléphone</Label>
@@ -99,31 +111,25 @@ const EditEtablissement = () => {
           name="telephone"
           value={telephone}
           onChange={(e) => setTelephone(e.target.value)}
-          required
         />
 
-        <Label htmlFor="directeurId">Directeur</Label>
+        <Label htmlFor="directeur">Directeur</Label>
         <Select
-          name="directeurId"
+          name="directeur"
           value={directeurId}
           onChange={(e) => setDirecteurId(e.target.value)}
-          options={directeurs.map((d) => ({ 
-            value: d.id, 
-            label: d.nom 
-          }))}
-          required
+          options={directeurs}
+          placeholder="Sélectionnez un directeur"
         />
 
-        <Label htmlFor="complexeId">Complexe</Label>
+        <Label htmlFor="complexe">Complexe</Label>
         <Select
-          name="complexeId"
+          name="complexe"
           value={complexeId}
           onChange={(e) => setComplexeId(e.target.value)}
-          options={complexes.map((c) => ({ 
-            value: c.id, 
-            label: c.nom 
-          }))}
-          required
+          options={complexes}
+          placeholder="Sélectionnez un complexe"
+          disabled={complexes.length === 1} // désactive si un seul complexe
         />
 
         <Button type="submit">Modifier</Button>

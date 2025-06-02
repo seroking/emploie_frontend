@@ -12,8 +12,15 @@ const IndexDirectionRegional = () => {
   useEffect(() => {
     const fetchDirections = async () => {
       try {
-        const response = await API.get("/directions-regionales"); // Fetch directions
-        setDirections(response.data.data);
+        const response = await API.get("/directions-regionales");
+        const directionsData = response.data.data;
+  
+        const enriched = directionsData.map((direction) => ({
+          ...direction,
+          directeur_nom: direction.directeur_regional?.utilisateur?.nom || "Non défini",
+        }));
+  
+        setDirections(enriched);
       } catch (error) {
         setMessage({
           type: "error",
@@ -21,10 +28,11 @@ const IndexDirectionRegional = () => {
         });
       }
     };
-
+  
     fetchDirections();
   }, []);
-
+  
+  
   const handleDelete = async (item) => {
     try {
       await API.delete(`/directions-regionales/${item.id}`);
@@ -46,12 +54,9 @@ const IndexDirectionRegional = () => {
     { key: "nom", label: "Nom" },
     { key: "adresse", label: "Adresse" },
     { key: "telephone", label: "Téléphone" },
-    {
-      key: "directeur.utilisateur.nom",
-      label: "Directeur Régional",
-      render: (item) => item.directeur?.utilisateur?.nom || "N/A",
-    },
+    { key: "directeur_nom", label: "Directeur Régional" },
   ];
+  
 
   return (
     <div className="space-y-6">

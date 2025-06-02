@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
@@ -19,47 +19,55 @@ const CreateEtablissement = () => {
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch directeurs and complexes
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchOptions = async () => {
       try {
-        const [directeursRes, complexesRes] = await Promise.all([
-          API.get("/users", {
-            params: {
-              role: "DirecteurEtablissement", // Filter users by role
-            },
-          }),
-          API.get("/complexes"),
-        ]);
+        const res = await API.get("/etablissements");
 
-        setDirecteurs(directeursRes.data.data);
-        setComplexes(complexesRes.data.data);
-      } catch (error) {
-        setMessage({
-          type: "error",
-          text: "Erreur lors du chargement des données",
-        });
+        // directeurs : tableau à partir de res.data.directeurs
+        setDirecteurs(
+          res.data.directeurs.map((d) => ({
+            value: d.id,
+            label: d.utilisateur.nom,
+          }))
+        );
+
+        // complexe : c’est un objet, on le transforme en tableau pour map
+        if (res.data.complexe) {
+          setComplexes([
+            {
+              value: res.data.complexe.id,
+              label: res.data.complexe.nom,
+            },
+          ]);
+          setComplexeId(res.data.complexe.id); // Optionnel : présélectionne le complexe
+        } else {
+          setComplexes([]);
+        }
+      } catch (err) {
+        setMessage({ type: "error", text: "Erreur chargement des données." });
       }
     };
-    fetchData();
+
+    fetchOptions();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await API.post("/etablissements", {
-        nom: nom.trim(),
-        adresse: adresse.trim(),
-        telephone: telephone.trim(),
+        nom,
+        adresse,
+        telephone,
         directeur_etablissement_id: directeurId,
         complexe_id: complexeId,
       });
-      setMessage({ type: "success", text: "Établissement créé avec succès." });
+      setMessage({ type: "success", text: "Etablissement créé avec succès." });
       setTimeout(() => navigate("/etablissements"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Erreur lors de la création",
+        text: err.response?.data?.message || "Erreur.",
       });
     }
   };
@@ -73,7 +81,6 @@ const CreateEtablissement = () => {
           name="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
-          required
         />
 
         <Label htmlFor="adresse">Adresse</Label>
@@ -81,7 +88,6 @@ const CreateEtablissement = () => {
           name="adresse"
           value={adresse}
           onChange={(e) => setAdresse(e.target.value)}
-          required
         />
 
         <Label htmlFor="telephone">Téléphone</Label>
@@ -89,25 +95,25 @@ const CreateEtablissement = () => {
           name="telephone"
           value={telephone}
           onChange={(e) => setTelephone(e.target.value)}
-          required
         />
 
-        <Label htmlFor="directeurId">Directeur</Label>
+        <Label htmlFor="directeur">Directeur</Label>
         <Select
-          name="directeurId"
+          name="directeur"
           value={directeurId}
           onChange={(e) => setDirecteurId(e.target.value)}
-          options={directeurs.map((d) => ({ value: d.id, label: d.nom }))}
-          required
+          options={directeurs}
+          placeholder="Sélectionnez un directeur"
         />
 
-        <Label htmlFor="complexeId">Complexe</Label>
+        <Label htmlFor="complexe">Complexe</Label>
         <Select
-          name="complexeId"
+          name="complexe"
           value={complexeId}
           onChange={(e) => setComplexeId(e.target.value)}
-          options={complexes.map((c) => ({ value: c.id, label: c.nom }))}
-          required
+          options={complexes}
+          placeholder="Sélectionnez un complexe"
+          disabled={complexes.length === 1} // si un seul complexe, désactive la sélection (optionnel)
         />
 
         <Button type="submit">Créer</Button>

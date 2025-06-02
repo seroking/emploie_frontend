@@ -151,13 +151,14 @@ export default function Sidebar({ open, setOpen }) {
     <div
       className={`${
         open ? "w-60" : "w-16"
-      } fixed left-0 top-0 h-full bg-gray-800 text-white p-4 z-50 transition-all duration-300 overflow-y-auto`}
+      } fixed left-0 top-0 h-full bg-gray-800 text-white p-4 z-50 transition-all duration-300 overflow-y-auto flex flex-col`}
     >
       <div className="flex items-center mb-6">
         <Menu className="cursor-pointer" onClick={() => setOpen(!open)} />
         {open && <span className="text-xl ms-1 font-bold">Gestion d'EDT</span>}
       </div>
-      <ul className="space-y-4">
+  
+      <ul className="space-y-4 flex-1">
         {filteredMenuItems.map((item) => (
           <li key={item.to}>
             <Link
@@ -172,10 +173,11 @@ export default function Sidebar({ open, setOpen }) {
           </li>
         ))}
       </ul>
-      <div className="mt-4">
+  
+      <div className="mt-auto pt-4 border-t border-gray-700">
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-2 px-3 py-2 rounded text-white ${
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded  cursor-pointer ${
             !open ? "justify-center" : ""
           }`}
         >
@@ -185,4 +187,5 @@ export default function Sidebar({ open, setOpen }) {
       </div>
     </div>
   );
+  
 }

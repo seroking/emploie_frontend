@@ -13,7 +13,18 @@ const IndexFormateur = () => {
     const fetchFormateurs = async () => {
       try {
         const response = await API.get("/formateurs");
-        setFormateurs(response.data.data);
+        const rawFormateurs = response.data.data;
+
+        // Transformer les données pour aplatir les objets imbriqués
+        const transformed = rawFormateurs.map((formateur) => ({
+          ...formateur,
+          utilisateur_nom: formateur.utilisateur?.nom || "Non défini",
+          etablissement_nom: formateur.etablissement?.nom || "Non défini",
+          complexe_nom: formateur.complexe?.nom || "Non défini",
+          direction_regional_nom: formateur.direction_regional?.nom || "Non défini",
+        }));
+
+        setFormateurs(transformed);
       } catch (error) {
         setMessage({
           type: "error",
@@ -43,9 +54,10 @@ const IndexFormateur = () => {
   };
 
   const columns = [
-    { key: "id", label: "ID" },
-    { key: "utilisateur.nom", label: "Utilisateur" },
-    { key: "etablissement.nom", label: "Établissement" },
+    { key: "utilisateur_nom", label: "Utilisateur" },
+    { key: "etablissement_nom", label: "Établissement" },
+    { key: "complexe_nom", label: "Complexe" },
+    { key: "direction_regional_nom", label: "Direction Régionale" },
     { key: "specialite", label: "Spécialité" },
     { key: "heures_hebdomadaire", label: "Heures Hebdo" },
   ];

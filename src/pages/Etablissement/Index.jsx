@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
@@ -13,26 +13,43 @@ const IndexEtablissement = () => {
     const fetchEtablissements = async () => {
       try {
         const response = await API.get("/etablissements");
-        setEtablissements(response.data.data);
+        const data = response.data;
+
+        const transformed = data.etablissements.map((etab) => ({
+          ...etab,
+          complexe_nom: data.complexe.nom,
+          directeur_nom: etab.directeur_etablissement?.utilisateur?.nom || "Non défini",
+        }));
+
+        setEtablissements(transformed);
       } catch (error) {
-        setMessage({
-          type: "error",
-          text: "Erreur lors du chargement des établissements",
-        });
+        setMessage({ type: "error", text: "Erreur de chargement." });
       }
     };
+
     fetchEtablissements();
   }, []);
 
+  const handleEdit = (item) => {
+    navigate(`/etablissements/edit/${item.id}`);
+  };
+
   const handleDelete = async (item) => {
+    // if (!window.confirm("Voulez-vous vraiment supprimer cet établissement ?"))
+    //   return;
     try {
       await API.delete(`/etablissements/${item.id}`);
       setEtablissements((prev) => prev.filter((e) => e.id !== item.id));
-      setMessage({ type: "success", text: "Établissement supprimé." });
+      setMessage({
+        type: "success",
+        text: "Établissement supprimé avec succès.",
+      });
     } catch (err) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Erreur lors de la suppression",
+        text:
+          err.response?.data?.message ||
+          "Erreur lors de la suppression de l'établissement.",
       });
     }
   };
@@ -41,16 +58,8 @@ const IndexEtablissement = () => {
     { key: "nom", label: "Nom" },
     { key: "adresse", label: "Adresse" },
     { key: "telephone", label: "Téléphone" },
-    {
-      key: "directeur_etablissement",
-      label: "Directeur",
-      render: (item) => item.directeur_etablissement?.nom || "N/A",
-    },
-    {
-      key: "complexe",
-      label: "Complexe",
-      render: (item) => item.complexe?.nom || "N/A",
-    },
+    { key: "complexe_nom", label: "Complexe" },
+    { key: "directeur_nom", label: "Directeur" },
   ];
 
   return (
@@ -68,7 +77,7 @@ const IndexEtablissement = () => {
       <Table
         columns={columns}
         data={etablissements}
-        onEdit={(item) => navigate(`/etablissements/edit/${item.id}`)}
+        onEdit={handleEdit}
         onDelete={handleDelete}
       />
     </div>

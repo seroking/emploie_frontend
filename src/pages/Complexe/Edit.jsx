@@ -14,25 +14,37 @@ const EditComplexe = () => {
 
   const [nom, setNom] = useState("");
   const [directionRegionalId, setDirectionRegionalId] = useState("");
+  const [directeurComplexeId, setDirecteurComplexeId] = useState("");
   const [directions, setDirections] = useState([]);
+  const [directeursComplexes, setDirecteursComplexes] = useState([]);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const directionsRes = await API.get("/directions-regionales"); // Fetch directions
+        const [optionsRes, complexeRes] = await Promise.all([
+          API.get("/complexes"),
+          API.get(`/complexes/${id}`),
+        ]);
+
         setDirections(
-          directionsRes.data.data.map((d) => ({
+          optionsRes.data.direction_regionales.map((d) => ({
             value: d.id,
             label: d.nom,
           }))
         );
+        setDirecteursComplexes(
+          optionsRes.data.directeur_complexes.map((dc) => ({
+            value: dc.id,
+            label: dc.utilisateur.nom,
+          }))
+        );
 
-        const complexeRes = await API.get(`/complexes/${id}`); // Fetch complexe
         const complexe = complexeRes.data.data;
         setNom(complexe.nom);
         setDirectionRegionalId(complexe.direction_regional_id);
+        setDirecteurComplexeId(complexe.directeur_complexe_id);
       } catch (err) {
         setMessage({
           type: "error",
@@ -51,8 +63,8 @@ const EditComplexe = () => {
     try {
       await API.put(`/complexes/${id}`, {
         nom,
-        direction_regional_id: directionRegionalId,
-        directeur_complexe_id: 1, // Replace with the actual ID of the directeur_complexe
+        directeur_regional_id: directionRegionalId,
+        directeur_complexe_id: directeurComplexeId,
       });
       setMessage({ type: "success", text: "Complexe modifié avec succès." });
       setTimeout(() => navigate("/complexes"), 1500);
@@ -84,6 +96,14 @@ const EditComplexe = () => {
           options={directions}
           value={directionRegionalId}
           onChange={(e) => setDirectionRegionalId(e.target.value)}
+        />
+
+        <Label htmlFor="directeur_complexe_id">Directeur Complexe</Label>
+        <Select
+          name="directeur_complexe_id"
+          options={directeursComplexes}
+          value={directeurComplexeId}
+          onChange={(e) => setDirecteurComplexeId(e.target.value)}
         />
 
         <Button type="submit">Modifier</Button>

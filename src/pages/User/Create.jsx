@@ -99,7 +99,7 @@ const CreateUser = () => {
         <Label htmlFor="role">Rôle</Label>
         <Select
           name="role"
-          options={[{ value: "", label: "Sélectionnez un rôle" }, ...creatableRoles]}
+          options={creatableRoles}
           value={role}
           onChange={(e) => setRole(e.target.value)}
           required

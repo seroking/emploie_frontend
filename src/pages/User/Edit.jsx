@@ -15,28 +15,42 @@ const EditUser = () => {
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
+  const [editableRoles, setEditableRoles] = useState([]);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       try {
-        const response = await API.get(`/utilisateurs/${id}`); // Correct endpoint
-        const user = response.data.data;
+        const [resUser, resRoles] = await Promise.all([
+          API.get(`/utilisateurs/${id}`),
+          API.get("/utilisateurs"),
+        ]);
+
+        const user = resUser.data.data;
         setNom(user.nom);
         setEmail(user.email);
         setRole(user.role);
         setLoading(false);
+
+        if (resRoles.data.roles) {
+          setEditableRoles(
+            resRoles.data.roles.map((r) => ({
+              value: r,
+              label: r,
+            }))
+          );
+        }
       } catch (error) {
         setMessage({
           type: "error",
-          text: "Erreur lors du chargement de l'utilisateur.",
+          text: "Erreur lors du chargement des données utilisateur ou des rôles.",
         });
         setLoading(false);
       }
     };
 
-    fetchUser();
+    fetchData();
   }, [id]);
 
   const handleSubmit = async (e) => {
@@ -46,9 +60,9 @@ const EditUser = () => {
         nom,
         email,
         role,
-      }); // Correct endpoint
+      });
       setMessage({ type: "success", text: "Utilisateur modifié avec succès." });
-      setTimeout(() => navigate("/users"), 1500);
+      setTimeout(() => navigate("/utilisateurs"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -82,14 +96,7 @@ const EditUser = () => {
         <Label htmlFor="role">Rôle</Label>
         <Select
           name="role"
-          options={[
-            { value: "DirecteurSuper", label: "Directeur Super" },
-            { value: "DirecteurRegional", label: "Directeur Régional" },
-            { value: "DirecteurComplexe", label: "Directeur Complexe" },
-            { value: "DirecteurEtablissement", label: "Directeur Établissement" },
-            { value: "Formateur", label: "Formateur" },
-            { value: "Stagiaire", label: "Stagiaire" },
-          ]}
+          options={editableRoles}
           value={role}
           onChange={(e) => setRole(e.target.value)}
           required

@@ -10,6 +10,13 @@ const IndexFiliere = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+  useEffect(() => {
     const fetchFilieres = async () => {
       try {
         const response = await API.get("/filieres"); // Fetch filieres

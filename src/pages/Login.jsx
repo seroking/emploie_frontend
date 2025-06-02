@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { loginUser } from '../services/authService';
 import LoginImg from '../assets/images/LoginImage.png';
-import betterLogo from '../assets/images/betterLogo.jpeg';
 
 export default function Login() {
   const [email, setEmail] = useState('');

@@ -13,7 +13,15 @@ const IndexComplexe = () => {
     const fetchComplexes = async () => {
       try {
         const response = await API.get("/complexes"); // Fetch complexes
-        setComplexes(response.data.data);
+        const rawComplexes = response.data.data;
+
+        // Transformer les données pour afficher le nom de la direction régionale
+        const transformed = rawComplexes.map((complexe) => ({
+          ...complexe,
+          direction_info: complexe.direction_regional?.nom || "Non défini",
+        }));
+
+        setComplexes(transformed);
       } catch (error) {
         setMessage({
           type: "error",
@@ -25,10 +33,12 @@ const IndexComplexe = () => {
     fetchComplexes();
   }, []);
 
+  
+
   const handleDelete = async (item) => {
     try {
-      await API.delete(`/complexes/${item.id}`); // Send DELETE request
-      setComplexes((prev) => prev.filter((c) => c.id !== item.id)); // Remove deleted complexe
+      await API.delete(`/complexes/${item.id}`);
+      setComplexes((prev) => prev.filter((c) => c.id !== item.id));
       setMessage({ type: "success", text: "Complexe supprimé avec succès." });
     } catch (err) {
       setMessage({
@@ -44,7 +54,7 @@ const IndexComplexe = () => {
 
   const columns = [
     { key: "nom", label: "Nom" },
-    { key: "direction_regional.nom", label: "Direction Régionale" },
+    { key: "direction_info", label: "Direction Régionale" },
   ];
 
   return (
