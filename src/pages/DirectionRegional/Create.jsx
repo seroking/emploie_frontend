@@ -17,18 +17,24 @@ const CreateDirectionRegional = () => {
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  const fetchDirecteurs = async () => {
-    try {
-      const response = await API.get("/directions-regionales");
-      setDirecteurs(response.data.directeurRegionals);
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: "Erreur lors du chargement des directeurs régionaux.",
-      });
-    }
-  };
   useEffect(() => {
+    const fetchDirecteurs = async () => {
+      try {
+        const response = await API.get("/directeurs-regionales");
+        setDirecteurs(
+          response.data.data.map((d) => ({
+            value: d.id,
+            label: d.utilisateur.nom,
+          }))
+        );
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des directeurs régionaux.",
+        });
+      }
+    };
+
     fetchDirecteurs();
   }, []);
 
@@ -84,10 +90,7 @@ const CreateDirectionRegional = () => {
           name="directeurRegionalId"
           value={directeurRegionalId}
           onChange={(e) => setDirecteurRegionalId(e.target.value)}
-          options={directeurs.map((d) => ({
-            value: d.id,
-            label: d.nom,
-          }))}
+          options={directeurs}
           required
         />
 

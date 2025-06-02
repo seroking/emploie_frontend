@@ -2,37 +2,40 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const IndexFormateur = () => {
-  const [formateurs, setFormateurs] = useState([
-    {
-      id: 1,
-      utilisateur_id: 1,
-      etablissement_id: 1,
-      specialite: "Mathématiques",
-      heures_hebdomadaire: 18,
-    },
-    {
-      id: 2,
-      utilisateur_id: 2,
-      etablissement_id: 1,
-      specialite: "Physique",
-      heures_hebdomadaire: 20,
-    },
-  ]);
+  const [formateurs, setFormateurs] = useState([]);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
+    const fetchFormateurs = async () => {
+      try {
+        const response = await API.get("/formateurs");
+        setFormateurs(response.data.data);
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des formateurs.",
+        });
+      }
+    };
 
-  const handleDelete = (item) => {
-    setFormateurs((prev) => prev.filter((f) => f.id !== item.id));
-    setMessage({ type: "success", text: "Formateur supprimé." });
+    fetchFormateurs();
+  }, []);
+
+  const handleDelete = async (item) => {
+    try {
+      await API.delete(`/formateurs/${item.id}`);
+      setFormateurs((prev) => prev.filter((f) => f.id !== item.id));
+      setMessage({ type: "success", text: "Formateur supprimé avec succès." });
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors de la suppression du formateur.",
+      });
+    }
   };
 
   const handleEdit = (item) => {
@@ -41,8 +44,8 @@ const IndexFormateur = () => {
 
   const columns = [
     { key: "id", label: "ID" },
-    { key: "utilisateur_id", label: "Utilisateur" },
-    { key: "etablissement_id", label: "Établissement" },
+    { key: "utilisateur.nom", label: "Utilisateur" },
+    { key: "etablissement.nom", label: "Établissement" },
     { key: "specialite", label: "Spécialité" },
     { key: "heures_hebdomadaire", label: "Heures Hebdo" },
   ];

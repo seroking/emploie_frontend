@@ -6,6 +6,7 @@ import Select from "../../components/ui/Select";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
+import API from "../../services/api";
 
 const EditFormateur = () => {
   const { id } = useParams();
@@ -15,51 +16,67 @@ const EditFormateur = () => {
   const [etablissementId, setEtablissementId] = useState("");
   const [specialite, setSpecialite] = useState("");
   const [heuresHebdo, setHeuresHebdo] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [utilisateurs, setUtilisateurs] = useState([]);
+  const [etablissements, setEtablissements] = useState([]);
   const [message, setMessage] = useState(null);
-
-  const utilisateurs = [
-    { value: 1, label: "Utilisateur 1" },
-    { value: 2, label: "Utilisateur 2" },
-  ];
-  const etablissements = [
-    { value: 1, label: "Lycée A" },
-    { value: 2, label: "Lycée B" },
-  ];
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const formateurs = [
-      {
-        id: 1,
-        utilisateur_id: 1,
-        etablissement_id: 1,
-        specialite: "Mathématiques",
-        heures_hebdomadaire: 18,
-      },
-      {
-        id: 2,
-        utilisateur_id: 2,
-        etablissement_id: 1,
-        specialite: "Physique",
-        heures_hebdomadaire: 20,
-      },
-    ];
+    const fetchData = async () => {
+      try {
+        const formateurRes = await API.get(`/formateurs/${id}`);
+        const utilisateursRes = await API.get("/utilisateurs");
+        const etablissementsRes = await API.get("/etablissements");
 
-    const f = formateurs.find((f) => f.id === parseInt(id));
-    if (f) {
-      setUtilisateurId(f.utilisateur_id);
-      setEtablissementId(f.etablissement_id);
-      setSpecialite(f.specialite);
-      setHeuresHebdo(f.heures_hebdomadaire);
-    }
+        const formateur = formateurRes.data.data;
+        setUtilisateurId(formateur.utilisateur_id);
+        setEtablissementId(formateur.etablissement_id);
+        setSpecialite(formateur.specialite);
+        setHeuresHebdo(formateur.heures_hebdomadaire);
 
-    setLoading(false);
+        setUtilisateurs(
+          utilisateursRes.data.data.map((u) => ({
+            value: u.id,
+            label: u.nom,
+          }))
+        );
+
+        setEtablissements(
+          etablissementsRes.data.data.map((e) => ({
+            value: e.id,
+            label: e.nom,
+          }))
+        );
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des données.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [id]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ type: "success", text: "Formateur modifié avec succès." });
-    setTimeout(() => navigate("/formateurs"), 1500);
+    try {
+      await API.put(`/formateurs/${id}`, {
+        utilisateur_id: utilisateurId,
+        etablissement_id: etablissementId,
+        specialite,
+        heures_hebdomadaire: heuresHebdo,
+      });
+      setMessage({ type: "success", text: "Formateur modifié avec succès." });
+      setTimeout(() => navigate("/formateurs"), 1500);
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Erreur lors de la modification du formateur.",
+      });
+    }
   };
 
   if (loading) return <div>Chargement...</div>;

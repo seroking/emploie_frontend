@@ -31,7 +31,12 @@ const EditDirectionRegional = () => {
         setTelephone(direction.telephone);
         setDirecteurRegionalId(direction.directeur_regional_id);
 
-        setDirecteurs(directeursRes.data.data);
+        setDirecteurs(
+          directeursRes.data.data.map((d) => ({
+            value: d.id,
+            label: d.utilisateur.nom,
+          }))
+        );
       } catch (error) {
         setMessage({
           type: "error",
@@ -99,10 +104,7 @@ const EditDirectionRegional = () => {
           name="directeurRegionalId"
           value={directeurRegionalId}
           onChange={(e) => setDirecteurRegionalId(e.target.value)}
-          options={directeurs.map((d) => ({
-            value: d.id,
-            label: d.utilisateur.nom,
-          }))}
+          options={directeurs}
           required
         />
 
