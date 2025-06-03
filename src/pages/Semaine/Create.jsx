@@ -60,6 +60,7 @@ const CreateSemaine = () => {
         <Input
           name="numero"
           type="number"
+          placeholder="numero de semaine"
           value={numeroSemaine}
           onChange={(e) => setNumeroSemaine(e.target.value)}
           required

@@ -73,6 +73,7 @@ const CreateUser = () => {
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"
+          placeholder="nom de l'utilisateur"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
           required
@@ -82,6 +83,7 @@ const CreateUser = () => {
         <Input
           name="email"
           type="email"
+          placeholder="email de l'utilisateur"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -91,6 +93,7 @@ const CreateUser = () => {
         <Input
           name="password"
           type="password"
+          placeholder="mot de passe"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

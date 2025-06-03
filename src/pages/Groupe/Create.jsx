@@ -63,6 +63,7 @@ const CreateGroupe = () => {
           name="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
+          placeholder="nom"
           required
         />
 
@@ -71,7 +72,7 @@ const CreateGroupe = () => {
           name="annee"
           value={annee}
           onChange={(e) => setAnnee(e.target.value)}
-          placeholder="1 ou 2"
+          placeholder="1ere ou 2eme"
           required
         />
 

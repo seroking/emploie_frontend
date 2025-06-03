@@ -70,6 +70,7 @@ const CreateFormateur = () => {
           label="Spécialité"
           name="specialite"
           value={specialite}
+          placeholder={"specialite"}
           onChange={(e) => setSpecialite(e.target.value)}
           required
         />
@@ -78,6 +79,7 @@ const CreateFormateur = () => {
           label="Heures Hebdomadaires"
           name="heures_hebdomadaire"
           type="number"
+          placeholder={"heures_hebdomadaire"}
           value={heuresHebdomadaire}
           onChange={(e) => setHeuresHebdomadaire(e.target.value)}
           min={1}

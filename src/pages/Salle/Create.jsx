@@ -61,6 +61,7 @@ const CreateSalle = () => {
           name="nom"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
+          placeholder="nom de la salle"
           required
         />
 
@@ -68,6 +69,7 @@ const CreateSalle = () => {
         <Input
           name="capacite"
           type="number"
+          placeholder="capacite de la salle"
           value={capacite}
           onChange={(e) => setCapacite(e.target.value)}
           required

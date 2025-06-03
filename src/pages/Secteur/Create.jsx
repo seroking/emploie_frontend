@@ -34,6 +34,7 @@ const CreateSecteur = () => {
         <Input
           name="nom"
           value={nom}
+          placeholder="nom du secteur"
           onChange={(e) => setNom(e.target.value)}
           required
         />

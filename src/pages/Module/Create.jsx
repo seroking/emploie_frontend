@@ -63,6 +63,7 @@ const CreateModule = () => {
         <Label htmlFor="nom">Nom du module</Label>
         <Input
           name="nom"
+          placeholder={"nom"}
           value={nom}
           onChange={(e) => setNom(e.target.value)}
           required
@@ -72,6 +73,7 @@ const CreateModule = () => {
         <Input
           name="masseHorairePresentiel"
           type="number"
+          placeholder={"masseHorairePresentiel"}
           value={masseHorairePresentiel}
           onChange={(e) => setMasseHorairePresentiel(e.target.value)}
           required
@@ -81,6 +83,7 @@ const CreateModule = () => {
         <Input
           name="masseHoraireDistanciel"
           type="number"
+          placeholder={"masseHoraireDistanciel"}
           value={masseHoraireDistanciel}
           onChange={(e) => setMasseHoraireDistanciel(e.target.value)}
           required

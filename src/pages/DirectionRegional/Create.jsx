@@ -65,6 +65,7 @@ const CreateDirectionRegional = () => {
         <Input
           name="nom"
           value={nom}
+          placeholder="nom du direction"
           onChange={(e) => setNom(e.target.value)}
           required
         />
@@ -73,6 +74,7 @@ const CreateDirectionRegional = () => {
         <Input
           name="adresse"
           value={adresse}
+          placeholder="adresse du direction"
           onChange={(e) => setAdresse(e.target.value)}
           required
         />
@@ -81,6 +83,7 @@ const CreateDirectionRegional = () => {
         <Input
           name="telephone"
           value={telephone}
+          placeholder="telephone"
           onChange={(e) => setTelephone(e.target.value)}
           required
         />

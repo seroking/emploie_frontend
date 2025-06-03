@@ -79,6 +79,7 @@ const CreateEtablissement = () => {
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"
+          placeholder="nom d'établissement"
           value={nom}
           onChange={(e) => setNom(e.target.value)}
         />
@@ -86,6 +87,7 @@ const CreateEtablissement = () => {
         <Label htmlFor="adresse">Adresse</Label>
         <Input
           name="adresse"
+          telephone="adresse"
           value={adresse}
           onChange={(e) => setAdresse(e.target.value)}
         />
@@ -93,6 +95,7 @@ const CreateEtablissement = () => {
         <Label htmlFor="telephone">Téléphone</Label>
         <Input
           name="telephone"
+          placeholder="telephone"
           value={telephone}
           onChange={(e) => setTelephone(e.target.value)}
         />
