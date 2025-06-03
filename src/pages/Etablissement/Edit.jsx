@@ -91,7 +91,7 @@ const EditEtablissement = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Modifier Établissement">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"

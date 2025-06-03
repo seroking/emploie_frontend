@@ -60,7 +60,7 @@ const CreateDirectionRegional = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Créer une direction regional">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"

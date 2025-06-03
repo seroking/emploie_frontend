@@ -86,7 +86,7 @@ const EditFormateur = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit} className="space-y-4">
+      <Form onSubmit={handleSubmit} className="space-y-4" title="Modifier Formateur">
         <Label htmlFor="specialite">Spécialité</Label>
         <Input
           name="specialite"

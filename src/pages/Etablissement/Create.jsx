@@ -75,7 +75,7 @@ const CreateEtablissement = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Créer un établissement">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"

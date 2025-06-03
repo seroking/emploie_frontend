@@ -57,7 +57,7 @@ const CreateGroupe = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Créer un Groupe">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"

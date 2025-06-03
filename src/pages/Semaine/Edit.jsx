@@ -69,7 +69,7 @@ const EditSemaine = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Modifier une Semaine">
         <Label htmlFor="numero">Numéro de semaine</Label>
         <Input
           name="numero"

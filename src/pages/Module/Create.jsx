@@ -59,7 +59,7 @@ const CreateModule = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Créer un Module">
         <Label htmlFor="nom">Nom du module</Label>
         <Input
           name="nom"
