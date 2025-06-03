@@ -13,8 +13,16 @@ const IndexGroupe = () => {
   useEffect(() => {
     const fetchGroupes = async () => {
       try {
-        const res = await API.get("/groupes"); // Backend endpoint
-        setGroupes(res.data.data); // Set groupes data
+        const res = await API.get("/groupes");
+        const rawGroupes = res.data.data;
+
+        const transformed = rawGroupes.map((groupe) => ({
+          ...groupe,
+          filiere_info: groupe.filiere?.nom || "Non défini",
+          etablissement_info: groupe.etablissement?.nom || "Non défini",
+        }));
+
+        setGroupes(transformed);
       } catch (err) {
         setMessage({
           type: "error",
@@ -48,8 +56,8 @@ const IndexGroupe = () => {
   const columns = [
     { key: "nom", label: "Nom" },
     { key: "annee", label: "Année" },
-    { key: "filiere.nom", label: "Filière" },
-    { key: "etablissement.nom", label: "Établissement" },
+    { key: "filiere_info", label: "Filière" },
+    { key: "etablissement_info", label: "Établissement" },
   ];
 
   return (

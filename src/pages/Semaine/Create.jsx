@@ -20,8 +20,8 @@ const CreateSemaine = () => {
   useEffect(() => {
     const fetchAnneesScolaires = async () => {
       try {
-        const res = await API.get("/annees-scolaires"); // Fetch années scolaires
-        setAnneesScolaires(res.data.data);
+        const res = await API.get("/semaines"); // Fetch années scolaires
+        setAnneesScolaires(res.data.annees);
       } catch (err) {
         setMessage({
           type: "error",

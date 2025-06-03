@@ -32,7 +32,7 @@ const EditGroupe = () => {
         setEtablissementId(groupe.etablissement_id);
 
         const allData = await API.get("/groupes");
-        setFilieres(allData.data.filiere);
+        setFilieres(allData.data.filieres);
         setEtablissements([allData.data.etablissement]);
       } catch (err) {
         setMessage({
@@ -85,6 +85,7 @@ const EditGroupe = () => {
           name="annee"
           value={annee}
           onChange={(e) => setAnnee(e.target.value)}
+          placeholder="1 ou 2"
           required
         />
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
@@ -7,20 +7,21 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import { AuthContext } from "../../contexts/AuthContext";
 
 const EditFormateur = () => {
   const { id } = useParams();
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // États pour chaque champ
   const [specialite, setSpecialite] = useState("");
   const [heuresHebdomadaire, setHeuresHebdomadaire] = useState("");
   const [utilisateurId, setUtilisateurId] = useState("");
   const [etablissementId, setEtablissementId] = useState("");
   const [complexeId, setComplexeId] = useState("");
   const [directionRegionalId, setDirectionRegionalId] = useState("");
+  const [peutGererSeance, setPeutGererSeance] = useState(false);
 
-  // Options pour les selects
   const [utilisateurs, setUtilisateurs] = useState([]);
   const [etablissements, setEtablissements] = useState([]);
   const [complexes, setComplexes] = useState([]);
@@ -35,13 +36,13 @@ const EditFormateur = () => {
 
     Promise.all([fetchOptions, fetchFormateur])
       .then(([optionsRes, formateurRes]) => {
-        // Charger les options des selects
+        // Options pour les selects
         setUtilisateurs(optionsRes.data.utilisateurs || []);
         setEtablissements(optionsRes.data.etablissements || []);
         setComplexes(optionsRes.data.complexes || []);
         setDirectionsRegionales(optionsRes.data.direction_regionales || []);
 
-        // Préremplir le formulaire avec le formateur récupéré
+        // Préremplir les champs
         const f = formateurRes.data.data;
         setSpecialite(f.specialite || "");
         setHeuresHebdomadaire(f.heures_hebdomadaire?.toString() || "");
@@ -49,6 +50,7 @@ const EditFormateur = () => {
         setEtablissementId(f.etablissement_id || "");
         setComplexeId(f.complexe_id || "");
         setDirectionRegionalId(f.direction_regional_id || "");
+        setPeutGererSeance(f.utilisateur?.role === "DirecteurEtablissement");
       })
       .catch(() => {
         setMessage({ type: "error", text: "Erreur lors du chargement des données." });
@@ -67,7 +69,11 @@ const EditFormateur = () => {
         etablissement_id: etablissementId,
         complexe_id: complexeId,
         direction_regional_id: directionRegionalId,
+        ...(user?.role === "DirecteurEtablissement" && {
+          peut_gerer_seance: peutGererSeance,
+        }),
       });
+
       setMessage({ type: "success", text: "Formateur modifié avec succès." });
       setTimeout(() => navigate("/formateurs"), 1500);
     } catch (error) {
@@ -134,6 +140,20 @@ const EditFormateur = () => {
           options={directionsRegionales.map((d) => ({ value: d.id, label: d.nom }))}
           required
         />
+
+        {user?.role === "DirecteurEtablissement" && (
+          <>
+            <Label htmlFor="peut_gerer_seance">Peut gérer les séances</Label>
+            <input
+              type="checkbox"
+              name="peut_gerer_seance"
+              id="peut_gerer_seance"
+              checked={peutGererSeance}
+              onChange={(e) => setPeutGererSeance(e.target.checked)}
+              className="ml-2"
+            />
+          </>
+        )}
 
         <Button type="submit">Modifier</Button>
       </Form>

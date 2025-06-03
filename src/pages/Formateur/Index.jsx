@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import { AuthContext } from "../../contexts/AuthContext";
 
 const IndexFormateur = () => {
   const [formateurs, setFormateurs] = useState([]);
   const [message, setMessage] = useState(null);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,6 +39,7 @@ const IndexFormateur = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    if (user?.role === "DirecteurEtablissement") return;
     try {
       await API.delete(`/formateurs/${item.id}`);
       setFormateurs((prev) => prev.filter((f) => f.id !== item.id));
@@ -66,19 +69,22 @@ const IndexFormateur = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Liste des formateurs</h1>
-        <button
-          onClick={() => navigate("/formateurs/create")}
-          className="justify-end w-auto px-4 py-2 cursor-pointer rounded-xl bg-gradient-to-r from-indigo-600 to-purple-400 text-white font-semibold shadow-md hover:opacity-90 transition"
-        >
-          + Créer un formateur
-        </button>
+        {user?.role !== "DirecteurEtablissement" && (
+          <button
+            onClick={() => navigate("/formateurs/create")}
+            className="justify-end w-auto px-4 py-2 cursor-pointer rounded-xl bg-gradient-to-r from-indigo-600 to-purple-400 text-white font-semibold shadow-md hover:opacity-90 transition"
+          >
+            + Créer un formateur
+          </button>
+        )}
+
       </div>
       {message && <Message type={message.type} text={message.text} />}
       <Table
         columns={columns}
         data={formateurs}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={user?.role !== "DirecteurEtablissement" ? handleDelete : () => {}}
       />
     </div>
   );

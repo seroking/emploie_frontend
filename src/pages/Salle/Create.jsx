@@ -20,8 +20,8 @@ const CreateSalle = () => {
   useEffect(() => {
     const fetchEtablissements = async () => {
       try {
-        const response = await API.get("/etablissements"); // Fetch etablissements
-        setEtablissements(response.data.data);
+        const response = await API.get("/salles"); // Fetch etablissements
+        setEtablissements([response.data.etablissement]);
       } catch (error) {
         setMessage({
           type: "error",

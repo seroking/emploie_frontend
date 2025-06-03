@@ -25,8 +25,8 @@ const EditModule = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const filieresRes = await API.get("/filieres"); // Fetch filieres
-        setFilieres(filieresRes.data.data);
+        const filieresRes = await API.get("/modules"); // Fetch filieres
+        setFilieres(filieresRes.data.filieres);
 
         const moduleRes = await API.get(`/modules/${id}`); // Fetch module
         const module = moduleRes.data.data;

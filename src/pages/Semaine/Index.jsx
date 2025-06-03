@@ -12,8 +12,16 @@ const IndexSemaine = () => {
   useEffect(() => {
     const fetchSemaines = async () => {
       try {
-        const res = await API.get("/semaines"); // Fetch semaines
-        setSemaines(res.data.data);
+        const res = await API.get("/semaines");
+        const rawSemaines = res.data.data;
+
+        // Transformer pour afficher nom d'année scolaire
+        const transformed = rawSemaines.map((semaine) => ({
+          ...semaine,
+          annee_info: semaine.annee_scolaire?.nom || "Non défini",
+        }));
+
+        setSemaines(transformed);
       } catch (err) {
         setMessage({
           type: "error",
@@ -24,6 +32,7 @@ const IndexSemaine = () => {
 
     fetchSemaines();
   }, []);
+
 
   const handleDelete = async (item) => {
     try {
@@ -46,8 +55,9 @@ const IndexSemaine = () => {
     { key: "numero_semaine", label: "Numéro" },
     { key: "date_debut", label: "Date Début" },
     { key: "date_fin", label: "Date Fin" },
-    { key: "annee_scolaire.nom", label: "Année Scolaire" },
+    { key: "annee_info", label: "Année Scolaire" },
   ];
+
 
   return (
     <div className="space-y-6">

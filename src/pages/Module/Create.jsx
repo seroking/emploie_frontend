@@ -22,8 +22,8 @@ const CreateModule = () => {
   useEffect(() => {
     const fetchFilieres = async () => {
       try {
-        const response = await API.get("/filieres"); // Fetch filieres
-        setFilieres(response.data.data);
+        const response = await API.get("/modules"); // Fetch filieres
+        setFilieres(response.data.filieres);
       } catch (error) {
         setMessage({
           type: "error",

@@ -12,8 +12,16 @@ const IndexSalle = () => {
   useEffect(() => {
     const fetchSalles = async () => {
       try {
-        const response = await API.get("/salles"); // Fetch salles
-        setSalles(response.data.salles);
+        const response = await API.get("/salles");
+        const rawSalles = response.data.salles;
+
+        // On transforme les données pour extraire le nom de l'établissement
+        const transformed = rawSalles.map((salle) => ({
+          ...salle,
+          etablissement_nom: salle.etablissement?.nom || "Non défini",
+        }));
+
+        setSalles(transformed);
       } catch (error) {
         setMessage({
           type: "error",
@@ -24,6 +32,7 @@ const IndexSalle = () => {
 
     fetchSalles();
   }, []);
+
 
   const handleDelete = async (item) => {
     try {
@@ -46,7 +55,7 @@ const IndexSalle = () => {
     { key: "nom", label: "Nom" },
     { key: "capacite", label: "Capacité" },
     { key: "type", label: "Type" },
-    { key: "etablissement.nom", label: "Établissement" },
+    { key: "etablissement_nom", label: "Établissement" },
   ];
 
   return (

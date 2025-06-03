@@ -12,8 +12,16 @@ const IndexModule = () => {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await API.get("/modules"); // Fetch modules
-        setModules(response.data.data);
+        const response = await API.get("/modules");
+        const rawModules = response.data.data;
+
+        // Transformer pour ajouter le nom de la filière
+        const transformed = rawModules.map((module) => ({
+          ...module,
+          filiere_nom: module.filiere?.nom || "Non défini",
+        }));
+
+        setModules(transformed);
       } catch (error) {
         setMessage({
           type: "error",
@@ -48,7 +56,7 @@ const IndexModule = () => {
     { key: "masse_horaire_distanciel", label: "Distanciel" },
     { key: "type_efm", label: "Type EFM" },
     { key: "semestre", label: "Semestre" },
-    { key: "filiere.nom", label: "Filière" },
+    { key: "filiere_nom", label: "Filière" },
   ];
 
   return (

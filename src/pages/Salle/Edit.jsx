@@ -23,7 +23,8 @@ const EditSalle = () => {
     const fetchData = async () => {
       try {
         const salleRes = await API.get(`/salles/${id}`); // Fetch specific salle
-        const etablissementsRes = await API.get("/etablissements"); // Fetch etablissements
+        const response = await API.get("/salles"); // Fetch etablissements
+        setEtablissements([response.data.etablissement]); // Fetch etablissements
 
         const salle = salleRes.data.data;
         setNom(salle.nom);
@@ -31,7 +32,6 @@ const EditSalle = () => {
         setType(salle.type);
         setEtablissementId(salle.etablissement_id);
 
-        setEtablissements(etablissementsRes.data.data);
       } catch (error) {
         setMessage({
           type: "error",

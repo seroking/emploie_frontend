@@ -22,7 +22,7 @@ const CreateGroupe = () => {
     const fetchData = async () => {
       try {
         const res = await API.get("/groupes");
-        setFilieres(res.data.filiere);
+        setFilieres(res.data.filieres);
         setEtablissements([res.data.etablissement]); // Backend returns a single etablissement
       } catch (err) {
         setMessage({
@@ -66,12 +66,12 @@ const CreateGroupe = () => {
           required
         />
 
-        <Label htmlFor="annee">Année scolaire</Label>
+        <Label htmlFor="annee">Année</Label>
         <Input
           name="annee"
           value={annee}
           onChange={(e) => setAnnee(e.target.value)}
-          placeholder="2023"
+          placeholder="1 ou 2"
           required
         />
 
