@@ -60,7 +60,7 @@ const EditFiliere = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Modifier la filière">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"

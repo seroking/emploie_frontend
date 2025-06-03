@@ -48,11 +48,12 @@ const CreateFiliere = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Créer une nouvelle filière">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"
           value={nom}
+          placeholder={"Entrez le nom de la filière"}
           onChange={(e) => setNom(e.target.value)}
           required
         />
@@ -60,13 +61,13 @@ const CreateFiliere = () => {
         <Label htmlFor="secteurId">Secteur</Label>
         <Select
           name="secteurId"
+          
           value={secteurId}
           onChange={(e) => {
             console.log(e.target.value);
             setSecteurId(e.target.value);
           }}
           options={[
-            { value: "", label: "Sélectionnez un secteur" }, // Default void option
             ...secteurs.map((s) => ({ value: s.id, label: s.nom })),
           ]}
           required

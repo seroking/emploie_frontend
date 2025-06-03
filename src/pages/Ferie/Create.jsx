@@ -35,10 +35,11 @@ const CreateFerie = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} title="Créer un jour férié">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"
+          placeholder={"Entrez le nom du jour férié"}
           value={nom}
           onChange={(e) => setNom(e.target.value)}
           required

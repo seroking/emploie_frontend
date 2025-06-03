@@ -51,7 +51,7 @@ import EditModule from "./pages/Module/Edit";
 
 function AppLayout({ sidebarOpen, setSidebarOpen }) {
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen bg-gray-100">
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? "ml-60" : "ml-16"}`}>
         <Navbar />
