@@ -65,9 +65,9 @@ export default function Login() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.2)] border border-gray-100">
           <div className="text-center mb-10">
-            <h1 className="text-[32px] font-bold text-black mb-4">LOGIN</h1>
+            <h1 className="text-[32px] font-bold text-black mb-4">Connexion</h1>
             <div className="h-[1px] w-16 bg-black mx-auto mb-4"></div>
-            <p className="text-black text-[16px]">Lorem ipsum dolor sit amet</p>
+            <p className="text-black text-[16px]">Bienvenue</p>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -124,10 +124,13 @@ export default function Login() {
           </form>
 
           <div className="mt-12 text-center">
-            <p className="text-sm text-gray-600">OFFPT</p>
-            <p className="text-sm text-gray-600 mt-2">LOOM</p>
+            <p className="text-sm text-gray-600"></p>
+            <a href="https://www.myway.ac.ma/fr" className="text-sm text-blue-600 hover:underline mt-1 block">
+              Myway 
+            </a>
+            <p className="text-sm text-gray-600 mt-2"></p>
             <a href="http://www.legendmotorcycle.com/about/90" className="text-sm text-blue-600 hover:underline mt-1 block">
-              www.legendmotorcycle.com/about/90
+              mot de pass oublier ?
             </a>
           </div>
         </div>
