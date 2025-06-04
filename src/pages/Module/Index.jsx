@@ -52,8 +52,8 @@ const IndexModule = () => {
 
   const columns = [
     { key: "nom", label: "Nom" },
-    { key: "masse_horaire_presentiel", label: "Présentiel" },
-    { key: "masse_horaire_distanciel", label: "Distanciel" },
+    { key: "masse_horaire_presentiel", label: "Masse horaire présentiel" },
+    { key: "masse_horaire_distanciel", label: "Masse horaire distanciel" },
     { key: "type_efm", label: "Type EFM" },
     { key: "semestre", label: "Semestre" },
     { key: "filiere_nom", label: "Filière" },
