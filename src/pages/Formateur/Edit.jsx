@@ -53,7 +53,10 @@ const EditFormateur = () => {
         setPeutGererSeance(f.utilisateur?.role === "DirecteurEtablissement");
       })
       .catch(() => {
-        setMessage({ type: "error", text: "Erreur lors du chargement des données." });
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des données.",
+        });
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -77,7 +80,11 @@ const EditFormateur = () => {
       setMessage({ type: "success", text: "Formateur modifié avec succès." });
       setTimeout(() => navigate("/formateurs"), 1500);
     } catch (error) {
-      setMessage({ type: "error", text: error.response?.data?.message || "Erreur lors de la modification." });
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message || "Erreur lors de la modification.",
+      });
     }
   };
 
@@ -86,72 +93,88 @@ const EditFormateur = () => {
   return (
     <>
       {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit} className="space-y-4" title="Modifier Formateur">
-        <Label htmlFor="specialite">Spécialité</Label>
-        <Input
-          name="specialite"
-          value={specialite}
-          onChange={(e) => setSpecialite(e.target.value)}
-          required
-        />
+      <Form
+        onSubmit={handleSubmit}
+        className="space-y-4"
+        title="Modifier Formateur"
+      >
+        {user.role === "DirecteurRegional" && (
+          <>
+            <Label htmlFor="specialite">Spécialité</Label>
+            <Input
+              name="specialite"
+              value={specialite}
+              onChange={(e) => setSpecialite(e.target.value)}
+              required
+            />
 
-        <Label htmlFor="heures_hebdomadaire">Heures Hebdomadaires</Label>
-        <Input
-          name="heures_hebdomadaire"
-          type="number"
-          value={heuresHebdomadaire}
-          onChange={(e) => setHeuresHebdomadaire(e.target.value)}
-          min={1}
-          required
-        />
+            <Label htmlFor="heures_hebdomadaire">Heures Hebdomadaires</Label>
+            <Input
+              name="heures_hebdomadaire"
+              type="number"
+              value={heuresHebdomadaire}
+              onChange={(e) => setHeuresHebdomadaire(e.target.value)}
+              min={1}
+              required
+            />
 
-        <Label htmlFor="utilisateur_id">Utilisateur</Label>
-        <Select
-          name="utilisateur_id"
-          value={utilisateurId}
-          onChange={(e) => setUtilisateurId(e.target.value)}
-          options={utilisateurs.map((u) => ({ value: u.id, label: u.nom }))}
-          required
-        />
+            <Label htmlFor="utilisateur_id">Utilisateur</Label>
+            <Select
+              name="utilisateur_id"
+              value={utilisateurId}
+              onChange={(e) => setUtilisateurId(e.target.value)}
+              options={utilisateurs.map((u) => ({ value: u.id, label: u.nom }))}
+              required
+            />
 
-        <Label htmlFor="etablissement_id">Établissement</Label>
-        <Select
-          name="etablissement_id"
-          value={etablissementId}
-          onChange={(e) => setEtablissementId(e.target.value)}
-          options={etablissements.map((e) => ({ value: e.id, label: e.nom }))}
-          required
-        />
+            <Label htmlFor="etablissement_id">Établissement</Label>
+            <Select
+              name="etablissement_id"
+              value={etablissementId}
+              onChange={(e) => setEtablissementId(e.target.value)}
+              options={etablissements.map((e) => ({
+                value: e.id,
+                label: e.nom,
+              }))}
+              required
+            />
 
-        <Label htmlFor="complexe_id">Complexe</Label>
-        <Select
-          name="complexe_id"
-          value={complexeId}
-          onChange={(e) => setComplexeId(e.target.value)}
-          options={complexes.map((c) => ({ value: c.id, label: c.nom }))}
-          required
-        />
+            <Label htmlFor="complexe_id">Complexe</Label>
+            <Select
+              name="complexe_id"
+              value={complexeId}
+              onChange={(e) => setComplexeId(e.target.value)}
+              options={complexes.map((c) => ({ value: c.id, label: c.nom }))}
+              required
+            />
 
-        <Label htmlFor="direction_regional_id">Direction Régionale</Label>
-        <Select
-          name="direction_regional_id"
-          value={directionRegionalId}
-          onChange={(e) => setDirectionRegionalId(e.target.value)}
-          options={directionsRegionales.map((d) => ({ value: d.id, label: d.nom }))}
-          required
-        />
+            <Label htmlFor="direction_regional_id">Direction Régionale</Label>
+            <Select
+              name="direction_regional_id"
+              value={directionRegionalId}
+              onChange={(e) => setDirectionRegionalId(e.target.value)}
+              options={directionsRegionales.map((d) => ({
+                value: d.id,
+                label: d.nom,
+              }))}
+              required
+            />
+          </>
+        )}
 
         {user?.role === "DirecteurEtablissement" && (
           <>
-            <Label htmlFor="peut_gerer_seance">Peut gérer les séances</Label>
-            <input
-              type="checkbox"
-              name="peut_gerer_seance"
-              id="peut_gerer_seance"
-              checked={peutGererSeance}
-              onChange={(e) => setPeutGererSeance(e.target.checked)}
-              className="ml-2"
-            />
+            <Label htmlFor="peut_gerer_seance" className="inline-flex items-center cursor-pointer space-x-2">
+              <input
+                type="checkbox"
+                name="peut_gerer_seance"
+                id="peut_gerer_seance"
+                checked={peutGererSeance}
+                onChange={(e) => setPeutGererSeance(e.target.checked)}
+                className="h-5 w-5 text-blue-600 transition duration-150 ease-in-out border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+              />
+              <span>Peut gérer séance</span>
+            </Label>
           </>
         )}
 
