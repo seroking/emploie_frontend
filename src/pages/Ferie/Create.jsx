@@ -62,7 +62,6 @@ const CreateFerie = () => {
           onChange={(e) => setDateFin(e.target.value)}
           required
         />
-Créer un Complexe
         <Button type="submit">Créer</Button>
       </Form>
     </>
