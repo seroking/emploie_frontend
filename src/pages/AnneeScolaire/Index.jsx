@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexAnneeScolaire = () => {
   const [annees, setAnnees] = useState([]);
@@ -17,13 +18,6 @@ const IndexAnneeScolaire = () => {
       );
   }, []);
 
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
-
   const handleDelete = async (item) => {
     try {
       await API.delete(`/annees-scolaires/${item.id}`);
@@ -34,7 +28,6 @@ const IndexAnneeScolaire = () => {
     }
   };
 
-  // Nouvelle fonction : navigation vers la page d'édition
   const handleEdit = (item) => {
     navigate(`/annees-scolaires/edit/${item.id}`);
   };
@@ -56,11 +49,14 @@ const IndexAnneeScolaire = () => {
           + Créer une année scolaire
         </button>
       </div>
+
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
+
       <Table
         columns={columns}
         data={annees}
-        onEdit={handleEdit} // ici on appelle navigate
+        onEdit={handleEdit}
         onDelete={handleDelete}
       />
     </div>

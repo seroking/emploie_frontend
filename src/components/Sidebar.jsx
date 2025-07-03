@@ -49,6 +49,18 @@ export default function Sidebar({ open, setOpen }) {
       ],
     },
     {
+      label: "Secteurs - Efp",
+      to: "/secteurs-etablissements",
+      icon: <PieChart size={18} />,
+      roles: ["DirecteurEtablissement"],
+    },
+    {
+      label: "Filières - Efp",
+      to: "/offres-formations",
+      icon: <GraduationCap size={18} />,
+      roles: ["DirecteurEtablissement"],
+    },
+    {
       label: "Calendrier",
       to: "/calendar",
       icon: <CalendarDays size={18} />,
@@ -76,12 +88,7 @@ export default function Sidebar({ open, setOpen }) {
       label: "Utilisateurs",
       to: "/utilisateurs",
       icon: <User size={18} />,
-      roles: [
-        "DirecteurSuper",
-        "DirecteurRegional",
-        "DirecteurComplexe",
-        "DirecteurEtablissement",
-      ],
+      roles: ["DirecteurSuper", "DirecteurRegional"],
     },
     {
       label: "Formateurs",
@@ -105,7 +112,7 @@ export default function Sidebar({ open, setOpen }) {
       label: "Établissements",
       to: "/etablissements",
       icon: <Building size={18} />,
-      roles: ["DirecteurComplexe"],
+      roles: ["DirecteurRegional"],
     },
     {
       label: "Semaines",
@@ -157,7 +164,7 @@ export default function Sidebar({ open, setOpen }) {
         <Menu className="cursor-pointer" onClick={() => setOpen(!open)} />
         {open && <span className="text-xl ms-1 font-bold">Gestion d'EDT</span>}
       </div>
-  
+
       <ul className="space-y-4 flex-1">
         {filteredMenuItems.map((item) => (
           <li key={item.to}>
@@ -173,7 +180,7 @@ export default function Sidebar({ open, setOpen }) {
           </li>
         ))}
       </ul>
-  
+
       <div className="mt-auto pt-4 border-t border-gray-700">
         <button
           onClick={handleLogout}
@@ -187,5 +194,4 @@ export default function Sidebar({ open, setOpen }) {
       </div>
     </div>
   );
-  
 }

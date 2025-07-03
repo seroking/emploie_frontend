@@ -33,17 +33,23 @@ const CreateEtablissement = () => {
         );
 
         // complexe : c’est un objet, on le transforme en tableau pour map
-        if (res.data.complexe) {
-          setComplexes([
-            {
-              value: res.data.complexe.id,
-              label: res.data.complexe.nom,
-            },
-          ]);
-          setComplexeId(res.data.complexe.id); // Optionnel : présélectionne le complexe
-        } else {
-          setComplexes([]);
-        }
+        setComplexes(
+          res.data.complexes.map((c) => ({
+            value: c.id,
+            label: c.nom,
+          }))
+        )
+        // if (res.data.complexe) {
+        //   setComplexes([
+        //     {
+        //       value: res.data.complexe.id,
+        //       label: res.data.complexe.nom,
+        //     },
+        //   ]);
+        //   // setComplexeId(res.data.complexe.id); // Optionnel : présélectionne le complexe
+        // } else {
+        //   setComplexes([]);
+        // }
       } catch (err) {
         setMessage({ type: "error", text: "Erreur chargement des données." });
       }
@@ -88,6 +94,7 @@ const CreateEtablissement = () => {
         <Input
           name="adresse"
           telephone="adresse"
+          placeholder="adresse d'établissement"
           value={adresse}
           onChange={(e) => setAdresse(e.target.value)}
         />
@@ -116,7 +123,7 @@ const CreateEtablissement = () => {
           onChange={(e) => setComplexeId(e.target.value)}
           options={complexes}
           placeholder="Sélectionnez un complexe"
-          disabled={complexes.length === 1} // si un seul complexe, désactive la sélection (optionnel)
+          // disabled={complexes.length === 1} // si un seul complexe, désactive la sélection (optionnel)
         />
 
         <Button type="submit">Créer</Button>

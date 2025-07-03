@@ -48,6 +48,12 @@ import EditSalle from "./pages/Salle/Edit";
 import IndexModule from "./pages/Module/Index";
 import CreateModule from "./pages/Module/Create";
 import EditModule from "./pages/Module/Edit";
+import IndexSectEfp from "./pages/SectEfp/Index";
+import CreateSectEfp from "./pages/SectEfp/Create";
+import EditSectEfp from "./pages/SectEfp/Edit";
+import IndexOffrir from "./pages/offrir/Index";
+import CreateOffrir from "./pages/offrir/Create";
+import EditOffrir from "./pages/offrir/Edit";
 
 function AppLayout({ sidebarOpen, setSidebarOpen }) {
   return (
@@ -124,6 +130,16 @@ function AppLayout({ sidebarOpen, setSidebarOpen }) {
             <Route path="/modules" element={<IndexModule />} />
             <Route path="/modules/create" element={<CreateModule />} />
             <Route path="/modules/edit/:id" element={<EditModule />} />
+
+            {/* assosiation sect-efp */}
+            <Route path="/secteurs-etablissements" element={<IndexSectEfp />} />
+            <Route path="/secteurs-etablissements/create" element={<CreateSectEfp />} />
+            <Route path="/secteurs-etablissements/edit/:id" element={<EditSectEfp />} />
+
+            {/* assosiation filiere-efp */}
+            <Route path="/offres-formations" element={<IndexOffrir />} />
+            <Route path="/offres-formations/create" element={<CreateOffrir />} />
+            <Route path="/offres-formations/edit/:id" element={<EditOffrir />} />
 
             {/* Default redirect within layout */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

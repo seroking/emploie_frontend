@@ -17,8 +17,9 @@ const IndexEtablissement = () => {
 
         const transformed = data.etablissements.map((etab) => ({
           ...etab,
-          complexe_nom: data.complexe.nom,
-          directeur_nom: etab.directeur_etablissement?.utilisateur?.nom || "Non défini",
+          complexe_nom: etab.complexe?.nom ?? "Non défini",
+          directeur_nom:
+            etab.directeur_etablissement?.utilisateur?.nom || "Non défini",
         }));
 
         setEtablissements(transformed);

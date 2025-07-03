@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexComplexe = () => {
   const [complexes, setComplexes] = useState([]);
@@ -69,6 +70,7 @@ const IndexComplexe = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={complexes}
