@@ -69,6 +69,15 @@ export default function DayColumn({
   const handleClose = () => {
     setShowModal(false);
     setSelectedSeance(null);
+    setFormData({
+      salle_id: "",
+      module_id: "",
+      formateur_id: "",
+      semaine_id: resources.semaines[0]?.id || "",
+      type: "presentiel",
+      heure_debut: "",
+      heure_fin: "",
+    });
   };
 
   const handleChange = (e) => {
@@ -96,12 +105,21 @@ export default function DayColumn({
         salle_id: "",
         module_id: "",
         formateur_id: "",
-        semaine_id: "",
+        semaine_id: resources.semaines[0]?.id || "",
         type: "presentiel",
-        heure_debut: "08:00",
-        heure_fin: "10:00",
+        heure_debut: "",
+        heure_fin: "",
       });
     } catch (error) {
+      setFormData({
+        salle_id: "",
+        module_id: "",
+        formateur_id: "",
+        semaine_id: resources.semaines[0]?.id || "",
+        type: "presentiel",
+        heure_debut: "",
+        heure_fin: "",
+      });
       console.error("Error handling seance:", error);
       // Ajoutez ceci pour voir l'erreur en détail
       if (error.response) {
@@ -149,16 +167,27 @@ export default function DayColumn({
                 className="bg-gradient-to- cursor-pointer from-[#f3f0ff] to-[#e0e7ff] w-28 rounded-lg p-2 text-xs text-gray-700 font-medium shadow hover:shadow-md transition-all duration-200 relative group"
                 onClick={() => handleEditClick(seance)}
               >
+                <div className="text-xs font-bold text-center">
+                  {seance.heure_debut.slice(0, 5)} -{" "}
+                  {seance.heure_fin.slice(0, 5)}
+                </div>
                 <div className="text-xs text-black text-center">
                   {getResourceName("formateurs", seance.formateur_id)}
                 </div>
                 <div className="font-semibold text-indigo-600 text-center">
                   {getResourceName("modules", seance.module_id)}
                 </div>
-                <div className="text-xs text-indigo-600 text-center">
-                  {getResourceName("salles", seance.salle_id)}
-                </div>
-                <div className={`text-xs text-center ${seance.type === 'presentiel' ? 'text-green-600':'text-red-600'}`}>{seance.type}</div>
+                <div
+                  className={`text-xs text-center ${
+                    seance.type === "presentiel"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {seance.type === "presentiel"
+                    ? getResourceName("salles", seance.salle_id)
+                    : "Distanciel"}
+                </div>{" "}
                 <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => {
@@ -195,27 +224,6 @@ export default function DayColumn({
                 : "Modifier la séance"}
             </h3>
             <form onSubmit={handleSubmit}>
-
-              <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Salle
-                </label>
-                <select
-                  name="salle_id"
-                  value={formData.salle_id}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded"
-                  required
-                >
-                  <option value="">Sélectionnez une salle</option>
-                  {resources.salles.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.nom}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Module
@@ -271,6 +279,27 @@ export default function DayColumn({
                   <option value="distanciel">Distanciel</option>
                 </select>
               </div>
+
+              {formData.type === "presentiel" && (
+                <div className="mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Salle
+                  </label>
+                  <select
+                    name="salle_id"
+                    value={formData.salle_id}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border rounded"
+                  >
+                    <option value="">Sélectionnez une salle</option>
+                    {resources.salles.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>

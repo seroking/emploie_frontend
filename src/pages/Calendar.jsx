@@ -95,7 +95,7 @@ export default function Calendar() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Erreur lors de l'ajout de la séance.",
+        text: "La salle ou le formateur est déjà occupé à cette date et heure.",
       });
     }
   };
@@ -117,7 +117,6 @@ export default function Calendar() {
           formateurs: formateursRes.data.data || [],
           semaines: semainesRes.data.semaine || [],
         });
-        console.log(resources);
       } catch (error) {
         setMessage({
           type: "error",
