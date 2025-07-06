@@ -154,6 +154,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const allowedRoles = [
+    "Formateur",
     "DirecteurEtablissement",
     "DirecteurSuper",
     "DirecteurRegional",

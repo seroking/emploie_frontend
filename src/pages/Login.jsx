@@ -35,7 +35,8 @@ export default function Login() {
         "DirecteurEtablissement",
         "DirecteurSuper",
         "DirecteurRegional",
-        "DirecteurComplexe"
+        "DirecteurComplexe",
+        "Formateur",
       ];
 
       if (allowedRoles.includes(user.role)) {

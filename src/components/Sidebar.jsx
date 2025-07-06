@@ -64,7 +64,7 @@ export default function Sidebar({ open, setOpen }) {
       label: "Calendrier",
       to: "/calendar",
       icon: <CalendarDays size={18} />,
-      roles: ["DirecteurEtablissement"],
+      roles: ["DirecteurEtablissement","Formateur"],
     },
     {
       label: "Année Scolaires",
@@ -118,7 +118,7 @@ export default function Sidebar({ open, setOpen }) {
       label: "Semaines",
       to: "/semaines",
       icon: <CalendarDays size={18} />,
-      roles: ["DirecteurEtablissement"],
+      roles: ["DirecteurEtablissement", "Formateur"],
     },
     {
       label: "Secteurs",
