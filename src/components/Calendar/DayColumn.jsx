@@ -334,13 +334,13 @@ export default function DayColumn({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200"
+                  className="px-4 py-2 rounded cursor-pointer bg-gray-100 hover:bg-gray-200"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded bg-[#7C5CFC] text-white hover:bg-[#5a3ee6]"
+                  className="px-4 py-2 rounded cursor-pointer bg-[#7C5CFC] text-white hover:bg-[#5a3ee6]"
                 >
                   {modalMode === "add" ? "Ajouter" : "Modifier"}
                 </button>
