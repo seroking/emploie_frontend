@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import API from "../services/api";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
+import API from "../services/api";
 import {
   Home,
   BookOpen,
@@ -23,6 +23,141 @@ export default function Sidebar({ open, setOpen }) {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
+  const [menuItems, setMenuItems] = useState([]);
+
+  useEffect(() => {
+    const baseItems = [
+      {
+        label: "Accueil",
+        to: "/dashboard",
+        icon: <Home size={18} />,
+        roles: [
+          "Formateur",
+          "DirecteurSuper",
+          "DirecteurRegional",
+          "DirecteurComplexe",
+          "DirecteurEtablissement",
+        ],
+      },
+      {
+        label: "Secteurs - Efp",
+        to: "/secteurs-etablissements",
+        icon: <PieChart size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+      {
+        label: "Filières - Efp",
+        to: "/offres-formations",
+        icon: <GraduationCap size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+      {
+        label: "Calendrier",
+        to: "/calendar",
+        icon: <CalendarDays size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+      {
+        label: "Année Scolaires",
+        to: "/annees-scolaires",
+        icon: <BookOpen size={18} />,
+        roles: ["DirecteurSuper"],
+      },
+      {
+        label: "Directions Régionales",
+        to: "/directions-regionales",
+        icon: <Building2 size={18} />,
+        roles: ["DirecteurSuper"],
+      },
+      {
+        label: "Complexes",
+        to: "/complexes",
+        icon: <Building size={18} />,
+        roles: ["DirecteurRegional"],
+      },
+      {
+        label: "Utilisateurs",
+        to: "/utilisateurs",
+        icon: <User size={18} />,
+        roles: ["DirecteurSuper", "DirecteurRegional"],
+      },
+      {
+        label: "Formateurs",
+        to: "/formateurs",
+        icon: <GraduationCap size={18} />,
+        roles: ["DirecteurRegional", "DirecteurEtablissement"],
+      },
+      {
+        label: "Filières",
+        to: "/filieres",
+        icon: <GraduationCap size={18} />,
+        roles: ["DirecteurSuper"],
+      },
+      {
+        label: "Jours fériés",
+        to: "/feries",
+        icon: <CalendarRange size={18} />,
+        roles: ["DirecteurSuper"],
+      },
+      {
+        label: "Établissements",
+        to: "/etablissements",
+        icon: <Building size={18} />,
+        roles: ["DirecteurRegional"],
+      },
+      {
+        label: "Semaines",
+        to: "/semaines",
+        icon: <CalendarDays size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+      {
+        label: "Secteurs",
+        to: "/secteurs",
+        icon: <PieChart size={18} />,
+        roles: ["DirecteurSuper"],
+      },
+      {
+        label: "Groupes",
+        to: "/groupes",
+        icon: <Users size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+      {
+        label: "Salles",
+        to: "/salles",
+        icon: <DoorOpen size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+      {
+        label: "Modules",
+        to: "/modules",
+        icon: <BookOpen size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+    ];
+
+    // Ajouter les accès du formateur s'il peut gérer les séances
+    if (user?.role === "Formateur" && user?.formateur?.peut_gerer_seance) {
+      baseItems.push(
+        {
+          label: "Calendrier",
+          to: "/calendar",
+          icon: <CalendarDays size={18} />,
+          roles: ["Formateur"],
+        },
+        {
+          label: "Semaines",
+          to: "/semaines",
+          icon: <CalendarDays size={18} />,
+          roles: ["Formateur"],
+        }
+      );
+    }
+
+    setMenuItems(baseItems);
+  }, [user]);
+
   const handleLogout = async () => {
     try {
       await API.post("/logout");
@@ -35,121 +170,8 @@ export default function Sidebar({ open, setOpen }) {
     }
   };
 
-  const menuItems = [
-    {
-      label: "Accueil",
-      to: "/dashboard",
-      icon: <Home size={18} />,
-      roles: [
-        "Formateur",
-        "DirecteurSuper",
-        "DirecteurRegional",
-        "DirecteurComplexe",
-        "DirecteurEtablissement",
-      ],
-    },
-    {
-      label: "Secteurs - Efp",
-      to: "/secteurs-etablissements",
-      icon: <PieChart size={18} />,
-      roles: ["DirecteurEtablissement"],
-    },
-    {
-      label: "Filières - Efp",
-      to: "/offres-formations",
-      icon: <GraduationCap size={18} />,
-      roles: ["DirecteurEtablissement"],
-    },
-    {
-      label: "Calendrier",
-      to: "/calendar",
-      icon: <CalendarDays size={18} />,
-      roles: ["DirecteurEtablissement","Formateur"],
-    },
-    {
-      label: "Année Scolaires",
-      to: "/annees-scolaires",
-      icon: <BookOpen size={18} />,
-      roles: ["DirecteurSuper"],
-    },
-    {
-      label: "Directions Régionales",
-      to: "/directions-regionales",
-      icon: <Building2 size={18} />,
-      roles: ["DirecteurSuper"],
-    },
-    {
-      label: "Complexes",
-      to: "/complexes",
-      icon: <Building size={18} />,
-      roles: ["DirecteurRegional"],
-    },
-    {
-      label: "Utilisateurs",
-      to: "/utilisateurs",
-      icon: <User size={18} />,
-      roles: ["DirecteurSuper", "DirecteurRegional"],
-    },
-    {
-      label: "Formateurs",
-      to: "/formateurs",
-      icon: <GraduationCap size={18} />,
-      roles: ["DirecteurRegional", "DirecteurEtablissement"],
-    },
-    {
-      label: "Filières",
-      to: "/filieres",
-      icon: <GraduationCap size={18} />,
-      roles: ["DirecteurSuper"],
-    },
-    {
-      label: "Jours fériés",
-      to: "/feries",
-      icon: <CalendarRange size={18} />,
-      roles: ["DirecteurSuper"],
-    },
-    {
-      label: "Établissements",
-      to: "/etablissements",
-      icon: <Building size={18} />,
-      roles: ["DirecteurRegional"],
-    },
-    {
-      label: "Semaines",
-      to: "/semaines",
-      icon: <CalendarDays size={18} />,
-      roles: ["DirecteurEtablissement", "Formateur"],
-    },
-    {
-      label: "Secteurs",
-      to: "/secteurs",
-      icon: <PieChart size={18} />,
-      roles: ["DirecteurSuper"],
-    },
-    {
-      label: "Groupes",
-      to: "/groupes",
-      icon: <Users size={18} />,
-      roles: ["DirecteurEtablissement"],
-    },
-    {
-      label: "Salles",
-      to: "/salles",
-      icon: <DoorOpen size={18} />,
-      roles: ["DirecteurEtablissement"],
-    },
-    {
-      label: "Modules",
-      to: "/modules",
-      icon: <BookOpen size={18} />,
-      roles: ["DirecteurEtablissement"],
-    },
-  ];
-
-  // Récupérer le rôle de l'utilisateur connecté
   const userRole = user?.role;
 
-  // Filtrer les items selon le rôle
   const filteredMenuItems = menuItems.filter((item) =>
     item.roles.includes(userRole)
   );
@@ -184,7 +206,7 @@ export default function Sidebar({ open, setOpen }) {
       <div className="mt-auto pt-4 border-t border-gray-700">
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-2 px-3 py-2 rounded  cursor-pointer ${
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded cursor-pointer ${
             !open ? "justify-center" : ""
           }`}
         >
