@@ -1,7 +1,7 @@
 // src/components/ui/HideMessage.jsx
 import { useEffect } from "react";
 
-const HideMessage = ({ message, onHide, delay = 3000 }) => {
+const HideMessage = ({ message, onHide, delay = 5000 }) => {
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => onHide(), delay);

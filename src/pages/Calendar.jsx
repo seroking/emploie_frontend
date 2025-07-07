@@ -28,19 +28,33 @@ export default function Calendar() {
   const handleUpdateSeance = async (seanceId, seanceData) => {
     try {
       const response = await API.put(`/seances/${seanceId}`, seanceData);
-      console.log("Update response:", response.data); // Ajoutez ce log
       fetchSeances();
       setMessage({
         type: "success",
         text: "Séance modifiée avec succès.",
       });
     } catch (error) {
-      console.error("Update error:", error.response?.data || error.message);
+      const errorData = error.response?.data;
+      let errorMessage = "Erreur lors de la modification de la séance.";
+
+      if (errorData?.message) {
+        errorMessage = errorData.message;
+
+        // Si c'est une erreur d'horaire, on ajoute les créneaux valides
+        if (errorData.valid_hours) {
+          errorMessage += "\nCréneaux valides:";
+          errorMessage += `\n- Première séance: ${errorData.valid_hours.premiere_seance.join(
+            ", "
+          )}`;
+          errorMessage += `\n- Deuxième séance: ${errorData.valid_hours.deuxieme_seance.join(
+            ", "
+          )}`;
+        }
+      }
+
       setMessage({
         type: "error",
-        text:
-          error.response?.data?.message ||
-          "Erreur lors de la modification de la séance.",
+        text: errorMessage,
       });
     }
   };
@@ -56,7 +70,9 @@ export default function Calendar() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Erreur lors de la suppression de la séance.",
+        text:
+          error.response?.data?.message ||
+          "Erreur lors de la suppression de la séance.",
       });
     }
   };
@@ -93,9 +109,26 @@ export default function Calendar() {
         text: "Séance ajoutée avec succès.",
       });
     } catch (error) {
+      const errorData = error.response?.data;
+      let errorMessage = "Erreur lors de l'ajout de la séance.";
+
+      if (errorData?.message) {
+        errorMessage = errorData.message;
+
+        if (errorData.valid_hours) {
+          errorMessage += "\nCréneaux valides:";
+          errorMessage += `\n- Première séance: ${errorData.valid_hours.premiere_seance.join(
+            ", "
+          )}`;
+          errorMessage += `\n- Deuxième séance: ${errorData.valid_hours.deuxieme_seance.join(
+            ", "
+          )}`;
+        }
+      }
+
       setMessage({
         type: "error",
-        text: "La salle ou le formateur est déjà occupé à cette date et heure.",
+        text: errorMessage,
       });
     }
   };
@@ -147,14 +180,12 @@ export default function Calendar() {
   useEffect(() => {
     if (!selectedSecteur) return;
 
-    // Dans fetchGroupes
     const fetchGroupes = async () => {
       try {
         const response = await API.get(
           `/groupes-par-secteur/${selectedSecteur}`
         );
         setGroups(response.data.data.groupes || []);
-        // Mettre à jour aussi les modules pour ce secteur
         setResources((prev) => ({
           ...prev,
           modules: response.data.data.modules || [],
@@ -185,7 +216,13 @@ export default function Calendar() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e9e6ff] to-[#f7f8fa] py-12">
       <div className="w-full max-w-5xl bg-white/80 rounded-2xl shadow-xl border border-gray-100">
-        {message && <Message type={message.type} text={message.text} />}
+        {message && (
+          <Message
+            type={message.type}
+            text={message.text}
+            onClose={() => setMessage(null)}
+          />
+        )}
         <HideMessage message={message} onHide={() => setMessage(null)} />
         <div className="px-8 pt-8">
           <select
