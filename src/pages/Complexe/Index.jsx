@@ -4,10 +4,12 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import HideMessage from "../../components/ui/hideMessage";
+import Loading from "../../components/ui/Loading";
 
 const IndexComplexe = () => {
   const [complexes, setComplexes] = useState([]);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +25,7 @@ const IndexComplexe = () => {
         }));
 
         setComplexes(transformed);
+        setLoading(false);
       } catch (error) {
         setMessage({
           type: "error",
@@ -33,8 +36,6 @@ const IndexComplexe = () => {
 
     fetchComplexes();
   }, []);
-
-  
 
   const handleDelete = async (item) => {
     try {
@@ -57,6 +58,8 @@ const IndexComplexe = () => {
     { key: "nom", label: "Nom" },
     { key: "direction_info", label: "Direction Régionale" },
   ];
+
+  if (loading) return <Loading />;
 
   return (
     <div className="space-y-6">

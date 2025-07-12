@@ -3,31 +3,27 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexFiliere = () => {
   const [filieres, setFilieres] = useState([]);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
 
   useEffect(() => {
     const fetchFilieres = async () => {
       try {
         const response = await API.get("/filieres"); // Fetch filieres
         const rawFilieres = response.data.data;
-  
+
         // Transformer les données pour affichage
         const transformed = rawFilieres.map((filiere) => ({
           ...filiere,
           secteur_info: `${filiere.secteur?.nom}`,
         }));
-  
+        setLoading(false);
         setFilieres(transformed);
       } catch (error) {
         setMessage({
@@ -36,10 +32,9 @@ const IndexFiliere = () => {
         });
       }
     };
-  
+
     fetchFilieres();
   }, []);
-  
 
   const handleDelete = async (item) => {
     try {
@@ -62,8 +57,7 @@ const IndexFiliere = () => {
     { key: "nom", label: "Nom" },
     { key: "secteur_info", label: "Secteur" },
   ];
-  
-
+if (loading) return <Loading/>;
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -76,6 +70,7 @@ const IndexFiliere = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={filieres}

@@ -7,6 +7,7 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
 
 const EditSalle = () => {
   const { id } = useParams();
@@ -31,7 +32,6 @@ const EditSalle = () => {
         setCapacite(salle.capacite);
         setType(salle.type);
         setEtablissementId(salle.etablissement_id);
-
       } catch (error) {
         setMessage({
           type: "error",
@@ -59,12 +59,13 @@ const EditSalle = () => {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Erreur lors de la modification.",
+        text:
+          error.response?.data?.message || "Erreur lors de la modification.",
       });
     }
   };
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading) return <Loading />;
 
   return (
     <>

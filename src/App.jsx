@@ -54,6 +54,10 @@ import EditSectEfp from "./pages/SectEfp/Edit";
 import IndexOffrir from "./pages/offrir/Index";
 import CreateOffrir from "./pages/offrir/Create";
 import EditOffrir from "./pages/offrir/Edit";
+import Timetable from "./components/TimeTable";
+import IndexStagiaire from "./pages/Stagiaire";
+import TimeTableStagiaire from './components/ui/TimeTableStagiaire';
+import Home from "./pages/Home";
 
 function AppLayout({ sidebarOpen, setSidebarOpen }) {
   return (
@@ -141,6 +145,9 @@ function AppLayout({ sidebarOpen, setSidebarOpen }) {
             <Route path="/offres-formations/create" element={<CreateOffrir />} />
             <Route path="/offres-formations/edit/:id" element={<EditOffrir />} />
 
+            {/* assosiation filiere-efp */}
+            <Route path="/mes-seances" element={<Timetable />} />
+
             {/* Default redirect within layout */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
@@ -166,7 +173,10 @@ export default function App() {
       <Router>
         <Routes>
           {/* Public Login Route at root */}
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Home />}/>
+          <Route path="/login" element={<Login />} />
+          <Route path="/espace-stagiaires" element={<IndexStagiaire />}/>
+          <Route path="/espace-stagiaires/emploi-du-temps" element={<TimeTableStagiaire />}/>
 
           {/* Protected App Routes */}
           <Route element={<ProtectedRoute allowedRoles={allowedRoles} />}>

@@ -6,6 +6,7 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
 
 const EditSectEfp = () => {
   const { id } = useParams();
@@ -61,7 +62,7 @@ const EditSectEfp = () => {
     }
   };
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading) return <Loading />;
 
   return (
     <>

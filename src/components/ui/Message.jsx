@@ -4,7 +4,7 @@ import clsx from "clsx";
 const Message = ({ type = "info", text }) => {
   return (
     <div
-      className={clsx("px-4 py-3 rounded shadow-md mb-4", {
+      className={clsx("px-4 py-3 rounded shadow-md mb-4 fixed top-0 left-0 right-0 text-center border-b-black", {
         "bg-green-100 text-green-800 border border-green-400":
           type === "success",
         "bg-red-100 text-red-800 border border-red-400": type === "error",

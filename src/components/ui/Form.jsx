@@ -10,7 +10,7 @@ const Form = ({ title = "", children, onSubmit, className = "" }) => {
       )}
       <form
         onSubmit={onSubmit}
-        className={`bg-white p-8 rounded-2xl shadow-xl w-full max-w-3xl ${className}`}
+        className={`bg-white p-8 rounded-2xl shadow-xl mb-10 w-full max-w-3xl ${className}`}
       >
         {children}
       </form>

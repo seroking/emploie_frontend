@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexSemaine = () => {
   const [semaines, setSemaines] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
@@ -20,7 +23,7 @@ const IndexSemaine = () => {
           ...semaine,
           annee_info: semaine.annee_scolaire?.nom || "Non défini",
         }));
-
+        setLoading(false);
         setSemaines(transformed);
       } catch (err) {
         setMessage({
@@ -32,7 +35,6 @@ const IndexSemaine = () => {
 
     fetchSemaines();
   }, []);
-
 
   const handleDelete = async (item) => {
     try {
@@ -58,7 +60,7 @@ const IndexSemaine = () => {
     { key: "annee_info", label: "Année Scolaire" },
   ];
 
-
+  if (loading) return <Loading />;
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -71,6 +73,7 @@ const IndexSemaine = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={semaines}

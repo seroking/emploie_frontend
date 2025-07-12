@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexDirectionRegional = () => {
   const [directions, setDirections] = useState([]);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,12 +17,13 @@ const IndexDirectionRegional = () => {
       try {
         const response = await API.get("/directions-regionales");
         const directionsData = response.data.data;
-  
+
         const enriched = directionsData.map((direction) => ({
           ...direction,
-          directeur_nom: direction.directeur_regional?.utilisateur?.nom || "Non défini",
+          directeur_nom:
+            direction.directeur_regional?.utilisateur?.nom || "Non défini",
         }));
-  
+        setLoading(false);
         setDirections(enriched);
       } catch (error) {
         setMessage({
@@ -28,16 +32,18 @@ const IndexDirectionRegional = () => {
         });
       }
     };
-  
+
     fetchDirections();
   }, []);
-  
-  
+
   const handleDelete = async (item) => {
     try {
       await API.delete(`/directions-regionales/${item.id}`);
       setDirections((prev) => prev.filter((d) => d.id !== item.id));
-      setMessage({ type: "success", text: "Direction régionale supprimée avec succès." });
+      setMessage({
+        type: "success",
+        text: "Direction régionale supprimée avec succès.",
+      });
     } catch (err) {
       setMessage({
         type: "error",
@@ -56,8 +62,8 @@ const IndexDirectionRegional = () => {
     { key: "telephone", label: "Téléphone" },
     { key: "directeur_nom", label: "Directeur Régional" },
   ];
-  
 
+  if (loading) return <Loading />;
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -70,6 +76,7 @@ const IndexDirectionRegional = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={directions}

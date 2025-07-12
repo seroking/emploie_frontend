@@ -4,10 +4,13 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
+import Loading from "../../components/ui/Loading";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexFormateur = () => {
   const [formateurs, setFormateurs] = useState([]);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -23,10 +26,12 @@ const IndexFormateur = () => {
           utilisateur_nom: formateur.utilisateur?.nom || "Non défini",
           etablissement_nom: formateur.etablissement?.nom || "Non défini",
           complexe_nom: formateur.complexe?.nom || "Non défini",
-          direction_regional_nom: formateur.direction_regional?.nom || "Non défini",
+          direction_regional_nom:
+            formateur.direction_regional?.nom || "Non défini",
         }));
 
         setFormateurs(transformed);
+        setLoading(false);
       } catch (error) {
         setMessage({
           type: "error",
@@ -65,6 +70,8 @@ const IndexFormateur = () => {
     { key: "heures_hebdomadaire", label: "Heures Hebdo" },
   ];
 
+  if (loading) return <Loading />;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -77,14 +84,16 @@ const IndexFormateur = () => {
             + Créer un formateur
           </button>
         )}
-
       </div>
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={formateurs}
         onEdit={handleEdit}
-        onDelete={user?.role !== "DirecteurEtablissement" ? handleDelete : () => {}}
+        onDelete={
+          user?.role !== "DirecteurEtablissement" ? handleDelete : () => {}
+        }
       />
     </div>
   );

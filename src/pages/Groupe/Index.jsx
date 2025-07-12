@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexGroupe = () => {
   const [groupes, setGroupes] = useState([]);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   // Fetch groupes from the backend
@@ -23,6 +26,7 @@ const IndexGroupe = () => {
         }));
 
         setGroupes(transformed);
+        setLoading(false);
       } catch (err) {
         setMessage({
           type: "error",
@@ -60,6 +64,7 @@ const IndexGroupe = () => {
     { key: "etablissement_info", label: "Établissement" },
   ];
 
+  if (loading) return <Loading />;
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -72,6 +77,7 @@ const IndexGroupe = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={groupes}

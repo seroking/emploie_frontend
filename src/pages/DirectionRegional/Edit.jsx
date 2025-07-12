@@ -7,6 +7,7 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
 
 const EditDirectionRegional = () => {
   const { id } = useParams();
@@ -59,17 +60,21 @@ const EditDirectionRegional = () => {
         telephone,
         directeur_regional_id: directeurRegionalId,
       });
-      setMessage({ type: "success", text: "Direction régionale modifiée avec succès." });
+      setMessage({
+        type: "success",
+        text: "Direction régionale modifiée avec succès.",
+      });
       setTimeout(() => navigate("/directions-regionales"), 1500);
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Erreur lors de la modification.",
+        text:
+          error.response?.data?.message || "Erreur lors de la modification.",
       });
     }
   };
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading) return <Loading />;
 
   return (
     <>

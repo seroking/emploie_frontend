@@ -6,6 +6,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
 
 const EditFerie = () => {
   const { id } = useParams();
@@ -50,12 +51,13 @@ const EditFerie = () => {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Erreur lors de la modification.",
+        text:
+          error.response?.data?.message || "Erreur lors de la modification.",
       });
     }
   };
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading) return <Loading />;
 
   return (
     <>

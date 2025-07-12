@@ -8,6 +8,7 @@ import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
+import Loading from "../../components/ui/Loading";
 
 const EditFormateur = () => {
   const { id } = useParams();
@@ -88,7 +89,7 @@ const EditFormateur = () => {
     }
   };
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading) return <Loading />;
 
   return (
     <>
@@ -164,7 +165,10 @@ const EditFormateur = () => {
 
         {user?.role === "DirecteurEtablissement" && (
           <>
-            <Label htmlFor="peut_gerer_seance" className="inline-flex items-center cursor-pointer space-x-2">
+            <Label
+              htmlFor="peut_gerer_seance"
+              className="inline-flex items-center cursor-pointer space-x-2"
+            >
               <input
                 type="checkbox"
                 name="peut_gerer_seance"

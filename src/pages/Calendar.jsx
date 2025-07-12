@@ -7,6 +7,7 @@ import DayColumn from "../components/Calendar/DayColumn";
 import API from "../services/api";
 import Message from "../components/ui/Message";
 import HideMessage from "../components/ui/hideMessage";
+import DownloadPDFButton from "../components/DownloadPDFButton";
 
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
@@ -225,10 +226,11 @@ export default function Calendar() {
         )}
         <HideMessage message={message} onHide={() => setMessage(null)} />
         <div className="px-8 pt-8">
+        {selectedSecteur && <DownloadPDFButton selectedSecteur={selectedSecteur} />}
           <select
             onChange={handleSecteurChange}
             value={selectedSecteur || ""}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full p-2 border cursor-pointer border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="">-- Sélectionnez un secteur --</option>
             {secteurs.map((sect) => (

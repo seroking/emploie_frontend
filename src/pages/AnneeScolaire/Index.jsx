@@ -4,18 +4,19 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import HideMessage from "../../components/ui/hideMessage";
+import Loading from "../../components/ui/Loading";
 
 const IndexAnneeScolaire = () => {
   const [annees, setAnnees] = useState([]);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     API.get("/annees-scolaires")
       .then((res) => setAnnees(res.data.data))
-      .catch(() =>
-        setMessage({ type: "error", text: "Erreur de chargement." })
-      );
+      .catch(() => setMessage({ type: "error", text: "Erreur de chargement." }))
+      .finally(setLoading(false));
   }, []);
 
   const handleDelete = async (item) => {
@@ -37,7 +38,7 @@ const IndexAnneeScolaire = () => {
     { key: "date_debut", label: "Date Début" },
     { key: "date_fin", label: "Date Fin" },
   ];
-
+  if (loading) return <Loading />;
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">

@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexSectEfp = () => {
   const [sectEfp, setSectEfp] = useState([]);
-  const [etablissementId, setEtablissementId] = useState();
-  const [secteurId, setSecteurId] = useState();
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
@@ -22,6 +23,7 @@ const IndexSectEfp = () => {
           secteur_info: sectEfp.secteur?.nom || "Non défini",
         }));
         setSectEfp(transformed);
+        setLoading(false);
       } catch (error) {
         setMessage({
           type: "error",
@@ -58,10 +60,13 @@ const IndexSectEfp = () => {
     { key: "secteur_info", label: "Secteur" },
   ];
 
+  if (loading) return <Loading />;
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Liste des secteurs de l'établissement</h1>
+        <h1 className="text-2xl font-bold">
+          Liste des secteurs de l'établissement
+        </h1>
         <button
           onClick={() => navigate("/secteurs-etablissements/create")}
           className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-400 text-white font-semibold shadow-md hover:opacity-90 transition"
@@ -70,6 +75,7 @@ const IndexSectEfp = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={sectEfp}

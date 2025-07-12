@@ -16,6 +16,7 @@ import {
   PieChart,
   DoorOpen,
   LogOut,
+  Calendar,
 } from "lucide-react";
 
 export default function Sidebar({ open, setOpen }) {
@@ -135,6 +136,12 @@ export default function Sidebar({ open, setOpen }) {
         icon: <BookOpen size={18} />,
         roles: ["DirecteurEtablissement"],
       },
+      {
+        label: "Mes séances",
+        to: "/mes-seances",
+        icon: <Calendar size={18} />,
+        roles: ["Formateur"],
+      }
     ];
 
     // Ajouter les accès du formateur s'il peut gérer les séances

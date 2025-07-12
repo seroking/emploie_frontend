@@ -6,6 +6,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
 
 const EditSecteur = () => {
   const { id } = useParams();
@@ -46,7 +47,7 @@ const EditSecteur = () => {
     }
   };
 
-  if (isLoading) return <div>Chargement...</div>;
+  if (isLoading) return <Loading />;
 
   return (
     <>

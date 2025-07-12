@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import Loading from "../../components/ui/Loading";
+import HideMessage from "../../components/ui/hideMessage";
 
 const IndexUser = () => {
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,6 +17,7 @@ const IndexUser = () => {
       try {
         const response = await API.get("/utilisateurs"); // Correct endpoint
         setUsers(response.data.data);
+        setLoading(false);
       } catch (error) {
         setMessage({
           type: "error",
@@ -29,7 +33,10 @@ const IndexUser = () => {
     try {
       await API.delete(`/utilisateurs/${item.id}`); // Send DELETE request
       setUsers((prev) => prev.filter((u) => u.id !== item.id)); // Remove deleted user
-      setMessage({ type: "success", text: "Utilisateur supprimé avec succès." });
+      setMessage({
+        type: "success",
+        text: "Utilisateur supprimé avec succès.",
+      });
     } catch (err) {
       setMessage({
         type: "error",
@@ -48,6 +55,8 @@ const IndexUser = () => {
     { key: "role", label: "Rôle" },
   ];
 
+  if (loading) return <Loading />;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -60,6 +69,7 @@ const IndexUser = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
+      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={users}
