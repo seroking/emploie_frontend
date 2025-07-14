@@ -80,21 +80,21 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your email"
+                placeholder="Entrer votre email"
                 required
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
+                Mot de passe
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 required
               />
               {error && (
@@ -107,7 +107,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
+              className={`w-full py-3 px-4 rounded-lg cursor-pointer text-white font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
                 isLoading ? "opacity-75" : ""
               }`}
               style={{
@@ -138,22 +138,16 @@ export default function Login() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Processing...
+                  Connexion en cours...
                 </span>
               ) : (
-                "Login Now"
+                "Se connecter"
               )}
             </button>
           </form>
 
           <div className="mt-3 text-center">
             <p className="text-sm text-gray-600"></p>
-            <a
-              href="https://www.myway.ac.ma/fr"
-              className="text-sm text-blue-600 hover:underline mt-1 block"
-            >
-              Myway
-            </a>
             <p className="text-sm text-gray-600 mt-2"></p>
             <a
               href="http://www.legendmotorcycle.com/about/90"

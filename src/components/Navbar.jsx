@@ -28,7 +28,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow px-4 py-3 flex justify-between items-center">
-      <h1 className="font-bold text-lg text-gray-800 dark:text-white">OFPPT</h1>
+      <h1 className="font-bold text-lg text-gray-800 dark:text-white">Gestion d'emploi du temps</h1>
       <div className="flex gap-4 cursor-pointer" onClick={toggleTheme}>
         {darkMode ? (
           <i className="fa-solid fa-sun"></i>

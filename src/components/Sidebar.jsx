@@ -6,7 +6,6 @@ import {
   Home,
   BookOpen,
   Building,
-  Menu,
   Building2,
   User,
   GraduationCap,
@@ -18,6 +17,7 @@ import {
   LogOut,
   Calendar,
 } from "lucide-react";
+import image from "../assets/images/betterLogo.jpeg";
 
 export default function Sidebar({ open, setOpen }) {
   const location = useLocation();
@@ -141,7 +141,7 @@ export default function Sidebar({ open, setOpen }) {
         to: "/mes-seances",
         icon: <Calendar size={18} />,
         roles: ["Formateur"],
-      }
+      },
     ];
 
     // Ajouter les accès du formateur s'il peut gérer les séances
@@ -173,7 +173,7 @@ export default function Sidebar({ open, setOpen }) {
     } finally {
       localStorage.removeItem("jwt_token");
       localStorage.removeItem("user");
-      navigate("/");
+      navigate("/login");
     }
   };
 
@@ -190,8 +190,13 @@ export default function Sidebar({ open, setOpen }) {
       } fixed left-0 top-0 h-full bg-gray-800 text-white p-4 z-50 transition-all duration-300 overflow-y-auto flex flex-col`}
     >
       <div className="flex items-center mb-6">
-        <Menu className="cursor-pointer" onClick={() => setOpen(!open)} />
-        {open && <span className="text-xl ms-1 font-bold">Gestion d'EDT</span>}
+        <img
+          src={image}
+          alt="Menu"
+          className="cursor-pointer h-8 w-8 object-contain rounded-full"
+          onClick={() => setOpen(!open)}
+        />
+        {open && <span className="text-xl ms-2 font-bold">OFPPT</span>}
       </div>
 
       <ul className="space-y-4 flex-1">

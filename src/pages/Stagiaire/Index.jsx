@@ -4,6 +4,7 @@ import Form from "../../components/ui/Form";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/layouts/Header";
 import Footer from "../../components/layouts/Footer";
+import Loading from "../../components/ui/Loading";
 
 const IndexStagiaire = () => {
   const [directionRegionales, setDirectionRegionales] = useState([]);
@@ -25,6 +26,8 @@ const IndexStagiaire = () => {
   const [filteredEtablissements, setFiltredEtablissements] = useState([]);
   const [filteredFilieres, setFiltredFilieres] = useState([]);
   const [filteredGroupe, setFiltredGroupe] = useState([]);
+
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -151,11 +154,14 @@ const IndexStagiaire = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     navigate("/espace-stagiaires/emploi-du-temps", {
       state: { seances },
     });
-    console.log(seances);
+    setLoading(false);
   };
+
+  if (loading) return <Loading />;
 
   return (
     <>

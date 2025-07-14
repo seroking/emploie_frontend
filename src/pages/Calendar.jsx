@@ -15,6 +15,7 @@ dayjs.extend(weekOfYear);
 export default function Calendar() {
   const [currentWeek, setCurrentWeek] = useState(dayjs());
   const [selectedSecteur, setSelectedSecteur] = useState(null);
+  const [selectedSecteurName, setSelectedSecteurName] = useState(null);
   const [groups, setGroups] = useState([]);
   const [seances, setSeances] = useState([]);
   const [message, setMessage] = useState(null);
@@ -213,7 +214,7 @@ export default function Calendar() {
         dayjs(seance.date_seance).format("DD-MM") === day.format("DD-MM")
     );
   };
-
+  const seanceLength = seances.length;
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e9e6ff] to-[#f7f8fa] py-12">
       <div className="w-full max-w-5xl bg-white/80 rounded-2xl shadow-xl border border-gray-100">
@@ -226,7 +227,23 @@ export default function Calendar() {
         )}
         <HideMessage message={message} onHide={() => setMessage(null)} />
         <div className="px-8 pt-8">
-        {selectedSecteur && <DownloadPDFButton selectedSecteur={selectedSecteur} />}
+          {selectedSecteur && (
+            <>
+              {seances.length > 0 && (
+                <DownloadPDFButton
+                  selectedSecteur={selectedSecteur}
+                  numero_semaine={
+                    seances[seanceLength - 1].semaine.numero_semaine
+                  }
+                  secteurNom={
+                    secteurs.find(
+                      (s) => s.secteur.id === parseInt(selectedSecteur)
+                    )?.secteur.nom
+                  }
+                />
+              )}
+            </>
+          )}
           <select
             onChange={handleSecteurChange}
             value={selectedSecteur || ""}

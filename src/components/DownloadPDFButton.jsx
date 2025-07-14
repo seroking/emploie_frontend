@@ -1,7 +1,7 @@
 import { saveAs } from "file-saver";
 import API from "../services/api";
 
-export default function DownloadPDFButton({ selectedSecteur }) {
+export default function DownloadPDFButton({ selectedSecteur, secteurNom, numero_semaine }) {
   const downloadPDF = async () => {
     try {
       const response = await API.get(
@@ -12,7 +12,11 @@ export default function DownloadPDFButton({ selectedSecteur }) {
       );
 
       const blob = new Blob([response.data], { type: "application/pdf" });
-      saveAs(blob, "emploi_du_temps.pdf");
+      // "emploi_du_temps.pdf"
+      saveAs(
+        blob,
+        `emploi_du_temps_${secteurNom}_semaine_${numero_semaine}.pdf`
+      );
     } catch (error) {
       console.error("Erreur lors du téléchargement du PDF :", error);
       alert("Impossible de télécharger le PDF.");

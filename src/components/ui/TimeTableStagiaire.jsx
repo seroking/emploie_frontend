@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DownloadStagiairePdfButton from "./DownloadStagiairePDFButton";
 
 const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
@@ -11,6 +11,7 @@ const creneaux = [
 ];
 
 const TimeTableStagiaire = () => {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const seances = state?.seances || [];
   const groupe = seances[0]?.groupe || null;
@@ -65,86 +66,103 @@ const TimeTableStagiaire = () => {
   });
 
   return (
-    <div className="overflow-x-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-xl font-bold">
-            Emploi du temps du groupe {groupeNom}
+    <div className="p-8 min-h-[60vh] flex flex-col items-center justify-center text-center">
+      {seances.length === 0 ? (
+        <>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            L'emploi du temps de la semaine prochaine n'a pas encore été créé.
           </h2>
-          <p className="text-gray-600">
-            Semaine {numeroSemaine} : du {dateDebut} au {dateFin}
-          </p>
-        </div>
-        {groupe && (
-          <DownloadStagiairePdfButton
-            groupeId={groupe.id}
-            etablissementId={groupe.etablissement_id}
-            nomGroupe={groupe.nom}
-            numero_semaine={numeroSemaine}
-          />
-        )}
-      </div>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-sm text-blue-600 cursor-pointer hover:underline"
+          >
+            ← Retour
+          </button>
+        </>
+      ) : (
+        <div className="w-full">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-bold">
+                Emploi du temps du groupe {groupeNom}
+              </h2>
+              <p className="text-gray-600">
+                Semaine {numeroSemaine} : du {dateDebut} au {dateFin}
+              </p>
+            </div>
+            {groupe && (
+              <DownloadStagiairePdfButton
+                groupeId={groupe.id}
+                etablissementId={groupe.etablissement_id}
+                nomGroupe={groupe.nom}
+                numero_semaine={numeroSemaine}
+              />
+            )}
+          </div>
 
-      <table className="table-auto border-collapse w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border border-gray-300 w-32 py-3 px-4 text-left">
-              Jour / Créneau
-            </th>
-            {creneaux.map((creneau, index) => (
-              <th
-                key={index}
-                className="border border-gray-300 py-3 px-4 text-sm font-medium text-gray-700"
-              >
-                {creneau}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {jours.map((jour, rowIndex) => (
-            <tr
-              key={rowIndex}
-              className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
-            >
-              <td className="border border-gray-300 py-3 px-4 font-medium text-gray-800">
-                {jour}
-              </td>
-              {creneaux.map((_, colIndex) => {
-                const cell = organizedSeances[rowIndex][colIndex];
-                return (
-                  <td
-                    key={colIndex}
-                    className="border border-gray-300 min-h-[4rem] p-1 hover:bg-gray-100 transition-colors"
+          <table className="table-auto border-collapse w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="border border-gray-300 w-32 py-3 px-4 text-left">
+                  Jour / Créneau
+                </th>
+                {creneaux.map((creneau, index) => (
+                  <th
+                    key={index}
+                    className="border border-gray-300 py-3 px-4 text-sm font-medium text-gray-700"
                   >
-                    {cell ? (
-                      Array.isArray(cell) ? (
-                        cell.map((seance, i) => (
-                          <SeanceCard key={i} seance={seance} />
-                        ))
-                      ) : (
-                        <SeanceCard seance={cell} />
-                      )
-                    ) : (
-                      <div className="h-full flex items-center justify-center">
-                        <span className="text-xs text-gray-400">-</span>
-                      </div>
-                    )}
+                    {creneau}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {jours.map((jour, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                >
+                  <td className="border border-gray-300 py-3 px-4 font-medium text-gray-800">
+                    {jour}
                   </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="text-center mt-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-sm cursor-pointer text-blue-600 hover:underline"
-        >
-          ← Retour
-        </button>
-      </div>
+                  {creneaux.map((_, colIndex) => {
+                    const cell = organizedSeances[rowIndex][colIndex];
+                    return (
+                      <td
+                        key={colIndex}
+                        className="border border-gray-300 min-h-[4rem] p-1 hover:bg-gray-100 transition-colors"
+                      >
+                        {cell ? (
+                          Array.isArray(cell) ? (
+                            cell.map((seance, i) => (
+                              <SeanceCard key={i} seance={seance} />
+                            ))
+                          ) : (
+                            <SeanceCard seance={cell} />
+                          )
+                        ) : (
+                          <div className="h-full flex items-center justify-center">
+                            <span className="text-xs text-gray-400">-</span>
+                          </div>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="text-center mt-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="text-sm cursor-pointer text-blue-600 hover:underline"
+            >
+              ← Retour
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

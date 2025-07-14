@@ -12,7 +12,7 @@ export default function WeekNavigation({ currentWeek, setCurrentWeek }) {
         Semaine précédente
       </button>
       <h2 className="text-xl font-bold flex items-center">
-        Date d’aujourd’hui : {currentWeek.format('D MMMM YYYY')}
+        Semaine de {currentWeek.format('D MMMM YYYY')}
       </h2>
       <button 
         className="px-6 py-3 cursor-pointer rounded-lg text-white font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
