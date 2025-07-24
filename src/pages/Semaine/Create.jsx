@@ -7,6 +7,7 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import BackButton from "../../components/ui/BackButton";
 
 const CreateSemaine = () => {
   const [numeroSemaine, setNumeroSemaine] = useState("");
@@ -22,6 +23,7 @@ const CreateSemaine = () => {
       try {
         const res = await API.get("/semaines"); // Fetch années scolaires
         setAnneesScolaires(res.data.annees);
+        setAnneeScolaireId(res.data.annees[0].id);
       } catch (err) {
         setMessage({
           type: "error",
@@ -43,7 +45,6 @@ const CreateSemaine = () => {
         annee_scolaire_id: anneeScolaireId,
       });
       setMessage({ type: "success", text: "Semaine créée avec succès." });
-      setTimeout(() => navigate("/semaines"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -54,7 +55,15 @@ const CreateSemaine = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer une Semaine">
         <Label htmlFor="numero">Numéro de semaine</Label>
         <Input
@@ -65,7 +74,6 @@ const CreateSemaine = () => {
           onChange={(e) => setNumeroSemaine(e.target.value)}
           required
         />
-
         <Label htmlFor="dateDebut">Date début</Label>
         <Input
           name="dateDebut"
@@ -74,7 +82,6 @@ const CreateSemaine = () => {
           onChange={(e) => setDateDebut(e.target.value)}
           required
         />
-
         <Label htmlFor="dateFin">Date fin</Label>
         <Input
           name="dateFin"
@@ -83,7 +90,6 @@ const CreateSemaine = () => {
           onChange={(e) => setDateFin(e.target.value)}
           required
         />
-
         <Label htmlFor="anneeScolaireId">Année scolaire</Label>
         <Select
           name="anneeScolaireId"
@@ -95,8 +101,10 @@ const CreateSemaine = () => {
           }))}
           required
         />
-
-        <Button type="submit">Créer</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Créer</Button>
+        </div>
       </Form>
     </>
   );

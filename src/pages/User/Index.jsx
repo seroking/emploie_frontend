@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexUser = () => {
   const [users, setUsers] = useState([]);
@@ -30,6 +30,8 @@ const IndexUser = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`l'utilisateur "${item.nom}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/utilisateurs/${item.id}`); // Send DELETE request
       setUsers((prev) => prev.filter((u) => u.id !== item.id)); // Remove deleted user
@@ -69,7 +71,6 @@ const IndexUser = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={users}

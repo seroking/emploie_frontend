@@ -16,6 +16,7 @@ import {
   DoorOpen,
   LogOut,
   Calendar,
+  Merge,
 } from "lucide-react";
 import image from "../assets/images/betterLogo.jpeg";
 
@@ -53,6 +54,12 @@ export default function Sidebar({ open, setOpen }) {
         roles: ["DirecteurEtablissement"],
       },
       {
+        label: "Affectations",
+        to: "/affectations",
+        icon: <Merge size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+      {
         label: "Calendrier",
         to: "/calendar",
         icon: <CalendarDays size={18} />,
@@ -63,6 +70,12 @@ export default function Sidebar({ open, setOpen }) {
         to: "/annees-scolaires",
         icon: <BookOpen size={18} />,
         roles: ["DirecteurSuper"],
+      },
+      {
+        label: "Utilisateurs",
+        to: "/utilisateurs",
+        icon: <User size={18} />,
+        roles: ["DirecteurSuper", "DirecteurRegional", "DirecteurEtablissement"],
       },
       {
         label: "Directions Régionales",
@@ -77,16 +90,10 @@ export default function Sidebar({ open, setOpen }) {
         roles: ["DirecteurRegional"],
       },
       {
-        label: "Utilisateurs",
-        to: "/utilisateurs",
-        icon: <User size={18} />,
-        roles: ["DirecteurSuper", "DirecteurRegional"],
-      },
-      {
-        label: "Formateurs",
-        to: "/formateurs",
-        icon: <GraduationCap size={18} />,
-        roles: ["DirecteurRegional", "DirecteurEtablissement"],
+        label: "Secteurs",
+        to: "/secteurs",
+        icon: <PieChart size={18} />,
+        roles: ["DirecteurSuper"],
       },
       {
         label: "Filières",
@@ -107,16 +114,16 @@ export default function Sidebar({ open, setOpen }) {
         roles: ["DirecteurRegional"],
       },
       {
+        label: "Formateurs",
+        to: "/formateurs",
+        icon: <GraduationCap size={18} />,
+        roles: ["DirecteurEtablissement"],
+      },
+      {
         label: "Semaines",
         to: "/semaines",
         icon: <CalendarDays size={18} />,
         roles: ["DirecteurEtablissement"],
-      },
-      {
-        label: "Secteurs",
-        to: "/secteurs",
-        icon: <PieChart size={18} />,
-        roles: ["DirecteurSuper"],
       },
       {
         label: "Groupes",

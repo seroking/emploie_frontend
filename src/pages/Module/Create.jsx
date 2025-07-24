@@ -7,6 +7,7 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import BackButton from "../../components/ui/BackButton";
 
 const CreateModule = () => {
   const [nom, setNom] = useState("");
@@ -47,7 +48,6 @@ const CreateModule = () => {
         filiere_id: filiereId,
       });
       setMessage({ type: "success", text: "Module créé avec succès." });
-      setTimeout(() => navigate("/modules"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -58,7 +58,15 @@ const CreateModule = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer un Module">
         <Label htmlFor="nom">Nom du module</Label>
         <Input
@@ -121,8 +129,10 @@ const CreateModule = () => {
           options={filieres.map((f) => ({ value: f.id, label: f.nom }))}
           required
         />
-
-        <Button type="submit">Créer</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Créer</Button>
+        </div>
       </Form>
     </>
   );

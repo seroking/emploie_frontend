@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
+import API from "../../services/api"; // Assuming this path is correct
 
 dayjs.extend(isBetween);
 
@@ -12,30 +13,49 @@ export default function DayColumn({
   onUpdateSeance,
   onDeleteSeance,
   resources,
+  currentSemaine,
 }) {
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState("add"); // 'add' or 'edit'
+  const [modalMode, setModalMode] = useState("add");
   const [selectedSeance, setSelectedSeance] = useState(null);
+  const [filteredFormateurs, setFilteredFormateurs] = useState([]);
+  const [filteredModules, setFilteredModules] = useState([]);
   const [formData, setFormData] = useState({
     salle_id: "",
     module_id: "",
     formateur_id: "",
-    semaine_id: resources.semaines[0]?.id || "",
+    semaine_id: currentSemaine?.id || "",
     type: "presentiel",
     heure_debut: "",
     heure_fin: "",
   });
 
+  const [contextMenu, setContextMenu] = useState(null); // State for context menu position
+
   const MAX_SEANCES_PER_DAY = 4;
   const canAddMoreSeances = seances.length < MAX_SEANCES_PER_DAY;
+
+  // Update semaine_id when currentSemaine changes
+  useEffect(() => {
+    if (currentSemaine) {
+      setFormData((prev) => ({
+        ...prev,
+        semaine_id: currentSemaine.id,
+      }));
+    }
+  }, [currentSemaine]);
 
   const handleAddClick = () => {
     if (!canAddMoreSeances) return;
 
     setFormData({
-      ...formData,
-      heure_debut: "08:30",
-      heure_fin: "10:50",
+      salle_id: "",
+      module_id: "",
+      formateur_id: "",
+      semaine_id: currentSemaine?.id || "",
+      type: "presentiel",
+      heure_debut: "08:30", // Default to first slot when adding new
+      heure_fin: "11:00",
     });
     setModalMode("add");
     setShowModal(true);
@@ -57,13 +77,54 @@ export default function DayColumn({
   };
 
   const handleDeleteClick = async (seanceId) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette séance ?")) {
-      try {
-        await onDeleteSeance(seanceId);
-      } catch (error) {
-        console.error("Error deleting seance:", error);
-      }
+    try {
+      await onDeleteSeance(seanceId);
+    } catch (error) {
+      console.error("Error deleting seance:", error);
     }
+  };
+
+  const handleDuplicateClick = (seance) => {
+    let newHeureDebut = seance.heure_debut;
+    let newHeureFin = seance.heure_fin;
+
+    // Apply the duplication logic for time slots
+    if (seance.heure_debut === "08:30:00" && seance.heure_fin === "11:00:00") {
+      newHeureDebut = "11:00";
+      newHeureFin = "13:30";
+    } else if (
+      seance.heure_debut === "11:00:00" &&
+      seance.heure_fin === "13:30:00"
+    ) {
+      newHeureDebut = "13:30";
+      newHeureFin = "16:00";
+    } else if (
+      seance.heure_debut === "13:30:00" &&
+      seance.heure_fin === "16:00:00"
+    ) {
+      newHeureDebut = "16:00";
+      newHeureFin = "18:30";
+    } else {
+      // If the existing time doesn't match a rule, default to the next logical slot or keep original
+      // For this example, we'll just keep the original times if no rule matches
+      // Or you could set a default like '08:30' - '11:00'
+      console.warn(
+        "No specific time rule for duplication. Keeping original times."
+      );
+    }
+
+    setFormData({
+      salle_id: seance.salle_id,
+      module_id: seance.module_id,
+      formateur_id: seance.formateur_id,
+      semaine_id: seance.semaine_id,
+      type: seance.type,
+      heure_debut: newHeureDebut.slice(0, 5), // Ensure format HH:MM
+      heure_fin: newHeureFin.slice(0, 5), // Ensure format HH:MM
+    });
+    setModalMode("add"); // Duplicate means adding a new one
+    setShowModal(true);
+    setContextMenu(null); // Close context menu
   };
 
   const handleClose = () => {
@@ -73,7 +134,7 @@ export default function DayColumn({
       salle_id: "",
       module_id: "",
       formateur_id: "",
-      semaine_id: resources.semaines[0]?.id || "",
+      semaine_id: currentSemaine?.id || "",
       type: "presentiel",
       heure_debut: "",
       heure_fin: "",
@@ -91,7 +152,7 @@ export default function DayColumn({
       const seanceData = {
         ...formData,
         groupe_id: groupId,
-        date_seance: day.format("YYYY-MM-DD"), // Utilisez directement day qui est déjà un objet dayjs
+        date_seance: day.format("YYYY-MM-DD"),
       };
 
       if (modalMode === "add") {
@@ -101,27 +162,18 @@ export default function DayColumn({
       }
 
       setShowModal(false);
+      // Reset form data after submission
       setFormData({
         salle_id: "",
         module_id: "",
         formateur_id: "",
-        semaine_id: resources.semaines[0]?.id || "",
+        semaine_id: currentSemaine?.id || "",
         type: "presentiel",
         heure_debut: "",
         heure_fin: "",
       });
     } catch (error) {
-      setFormData({
-        salle_id: "",
-        module_id: "",
-        formateur_id: "",
-        semaine_id: resources.semaines[0]?.id || "",
-        type: "presentiel",
-        heure_debut: "",
-        heure_fin: "",
-      });
       console.error("Error handling seance:", error);
-      // Ajoutez ceci pour voir l'erreur en détail
       if (error.response) {
         console.error("Response data:", error.response.data);
         console.error("Response status:", error.response.status);
@@ -129,19 +181,70 @@ export default function DayColumn({
     }
   };
 
-  const getResourceName = (type, id) => {
-    const resource = resources[type]?.find((item) => item.id === id);
-    if (!resource) return "N/A";
+  useEffect(() => {
+    const fetchFormateurs = async () => {
+      if (!formData.module_id || !groupId) {
+        setFilteredFormateurs([]);
+        return;
+      }
 
-    switch (type) {
-      case "formateurs":
-        return resource.utilisateur?.nom || "N/A";
-      case "semaines":
-        return `Semaine ${resource.numero_semaine}`;
-      default:
-        return resource.nom || "N/A";
-    }
+      try {
+        const response = await API.get(
+          `/formateurs-par-module-et-groupe/${formData.module_id}/${groupId}`
+        );
+        setFilteredFormateurs(response.data.data || []);
+        setFormData((prev) => ({
+          ...prev,
+          formateur_id:
+            response.data.data.length > 0
+              ? response.data.data[0].formateur.id
+              : "",
+        }));
+      } catch (error) {
+        console.error("Erreur lors du chargement des formateurs:", error);
+        setFilteredFormateurs([]);
+      }
+    };
+
+    fetchFormateurs();
+  }, [formData.module_id, groupId]);
+
+  useEffect(() => {
+    const fetchModule = async () => {
+      try {
+        const response = await API.get(`/modules-par-groupe/${groupId}`);
+        setFilteredModules(response.data.data || []);
+      } catch (error) {
+        console.error("Erreur lors du chargement des modules:", error);
+      }
+    };
+    fetchModule();
+  }, [groupId]);
+
+  const handleContextMenu = (e, seance) => {
+    e.preventDefault(); // Prevent default browser context menu
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      seance: seance,
+    });
   };
+
+  const handleClickOutsideContextMenu = () => {
+    setContextMenu(null); // Close context menu when clicking outside
+  };
+
+  // Add event listener for clicks outside the context menu
+  useEffect(() => {
+    if (contextMenu) {
+      document.addEventListener("click", handleClickOutsideContextMenu);
+    } else {
+      document.removeEventListener("click", handleClickOutsideContextMenu);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutsideContextMenu);
+    };
+  }, [contextMenu]);
 
   return (
     <>
@@ -166,16 +269,17 @@ export default function DayColumn({
                 key={seance.id}
                 className="bg-gradient-to- cursor-pointer from-[#f3f0ff] to-[#e0e7ff] w-28 rounded-lg p-2 text-xs text-gray-700 font-medium shadow hover:shadow-md transition-all duration-200 relative group"
                 onClick={() => handleEditClick(seance)}
+                onContextMenu={(e) => handleContextMenu(e, seance)} // Right-click handler
               >
                 <div className="text-xs font-bold text-center">
-                  {seance.heure_debut.slice(0, 5)} -{" "}
+                  {seance.heure_debut.slice(0, 5)} -
                   {seance.heure_fin.slice(0, 5)}
                 </div>
                 <div className="text-xs text-black text-center">
-                  {getResourceName("formateurs", seance.formateur_id)}
+                  {seance.formateur?.utilisateur?.nom || "N/A"}
                 </div>
                 <div className="font-semibold text-indigo-600 text-center">
-                  {getResourceName("modules", seance.module_id)}
+                  {seance.module?.nom || "N/A"}
                 </div>
                 <div
                   className={`text-xs text-center ${
@@ -185,9 +289,9 @@ export default function DayColumn({
                   }`}
                 >
                   {seance.type === "presentiel"
-                    ? getResourceName("salles", seance.salle_id)
-                    : "Distanciel"}
-                </div>{" "}
+                    ? seance.salle?.nom || "N/A"
+                    : "Teams"}
+                </div>
                 <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => {
@@ -236,32 +340,35 @@ export default function DayColumn({
                   required
                 >
                   <option value="">Sélectionnez un module</option>
-                  {resources.modules.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.nom}
+                  {filteredModules.map((m) => (
+                    <option key={m.module.id} value={m.module.id}>
+                      {m.module.nom}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Formateur
-                </label>
-                <select
-                  name="formateur_id"
-                  value={formData.formateur_id}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded"
-                  required
-                >
-                  <option value="">Sélectionnez un formateur</option>
-                  {resources.formateurs.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.utilisateur?.nom}
-                    </option>
-                  ))}
-                </select>
+                {formData.module_id && (
+                  <>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Formateur
+                    </label>
+                    <select
+                      name="formateur_id"
+                      value={formData.formateur_id}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border rounded"
+                      required
+                    >
+                      {filteredFormateurs.map((f) => (
+                        <option key={f.formateur.id} value={f.formateur.id}>
+                          {f.formateur.utilisateur.nom}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
               </div>
 
               <div className="mb-3">
@@ -290,6 +397,7 @@ export default function DayColumn({
                     value={formData.salle_id}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border rounded"
+                    required
                   >
                     <option value="">Sélectionnez une salle</option>
                     {resources.salles.map((s) => (
@@ -347,6 +455,28 @@ export default function DayColumn({
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {contextMenu && (
+        <div
+          className="absolute z-50 bg-white border border-gray-200 rounded-md shadow-lg py-1"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+          onClick={(e) => e.stopPropagation()} // Prevent closing on menu item click
+        >
+          <ul className="text-sm">
+            {canAddMoreSeances && (
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  handleDuplicateClick(contextMenu.seance);
+                  setContextMenu(null);
+                }}
+              >
+                Dupliquer
+              </li>
+            )}
+          </ul>
         </div>
       )}
     </>

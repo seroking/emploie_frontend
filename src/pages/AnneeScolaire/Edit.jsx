@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
 import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
@@ -45,17 +44,24 @@ const EditAnneeScolaire = () => {
         type: "success",
         text: "Année scolaire modifiée avec succès.",
       });
-      setTimeout(() => navigate("/annees-scolaires"), 1500);
     } catch {
       console.error(err.response || err);
       setMessage({ type: "error", text: "Erreur lors de la modification." });
     }
   };
 
-if (loading) return <Loading />;
+  if (loading) return <Loading />;
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier une année scolaire">
         <Label htmlFor="nom">Nom</Label>
         <Input

@@ -38,7 +38,6 @@ const EditSecteur = () => {
     try {
       await API.put(`/secteurs/${id}`, { nom }); // Send PUT request to update secteur
       setMessage({ type: "success", text: "Secteur modifié avec succès." });
-      setTimeout(() => navigate("/secteurs"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -51,7 +50,15 @@ const EditSecteur = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier un Secteur">
         <Label htmlFor="nom">Nom</Label>
         <Input

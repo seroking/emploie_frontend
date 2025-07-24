@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexSecteur = () => {
   const [secteurs, setSecteurs] = useState([]);
@@ -30,6 +30,8 @@ const IndexSecteur = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`le secteur "${item.nom}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/secteurs/${item.id}`); // Send DELETE request
       setSecteurs((prev) => prev.filter((s) => s.id !== item.id)); // Remove deleted secteur
@@ -60,7 +62,7 @@ const IndexSecteur = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
+      
       <Table
         columns={columns}
         data={secteurs}

@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexFerie = () => {
   const [feries, setFeries] = useState([]);
@@ -30,6 +30,8 @@ const IndexFerie = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`la vacance "${item.nom}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/feries/${item.id}`); // Send DELETE request
       setFeries((prev) => prev.filter((f) => f.id !== item.id)); // Remove deleted ferie
@@ -55,16 +57,16 @@ const IndexFerie = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Liste des jours fériés</h1>
+        <h1 className="text-2xl font-bold">Liste des vacances</h1>
         <button
           onClick={() => navigate("/feries/create")}
           className="justify-end w-auto px-4 py-2 cursor-pointer rounded-xl bg-gradient-to-r from-indigo-600 to-purple-400 text-white font-semibold shadow-md hover:opacity-90 transition"
         >
-          + Ajouter un jour férié
+          + Ajouter une vacance
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
+      
       <Table
         columns={columns}
         data={feries}

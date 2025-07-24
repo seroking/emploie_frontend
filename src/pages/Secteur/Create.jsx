@@ -17,7 +17,6 @@ const CreateSecteur = () => {
     try {
       await API.post("/secteurs", { nom }); // Send POST request to create secteur
       setMessage({ type: "success", text: "Secteur créé avec succès." });
-      setTimeout(() => navigate("/secteurs"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -28,7 +27,15 @@ const CreateSecteur = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer un Secteur">
         <Label htmlFor="nom">Nom</Label>
         <Input

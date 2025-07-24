@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexModule = () => {
   const [modules, setModules] = useState([]);
@@ -22,6 +22,8 @@ const IndexModule = () => {
         const transformed = rawModules.map((module) => ({
           ...module,
           filiere_nom: module.filiere?.nom || "Non défini",
+          masse_horaire_total:
+            module.masse_horaire_presentiel + module.masse_horaire_distanciel,
         }));
 
         setModules(transformed);
@@ -38,6 +40,8 @@ const IndexModule = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`le module "${item.nom}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/modules/${item.id}`); // Send DELETE request
       setModules((prev) => prev.filter((m) => m.id !== item.id)); // Remove deleted module
@@ -56,8 +60,9 @@ const IndexModule = () => {
 
   const columns = [
     { key: "nom", label: "Nom" },
-    { key: "masse_horaire_presentiel", label: "Masse horaire présentiel" },
-    { key: "masse_horaire_distanciel", label: "Masse horaire distanciel" },
+    { key: "masse_horaire_total", label: "Masse horaire total" },
+    { key: "masse_horaire_presentiel", label: "MH présentiel" },
+    { key: "masse_horaire_distanciel", label: "MH distanciel" },
     { key: "type_efm", label: "Type EFM" },
     { key: "semestre", label: "Semestre" },
     { key: "filiere_nom", label: "Filière" },
@@ -76,7 +81,7 @@ const IndexModule = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
+      
       <Table
         columns={columns}
         data={modules}

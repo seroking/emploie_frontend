@@ -7,12 +7,13 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import BackButton from "../../components/ui/BackButton";
 
 const CreateGroupe = () => {
   const [nom, setNom] = useState("");
   const [annee, setAnnee] = useState("");
   const [filiereId, setFiliereId] = useState("");
-  const [etablissementId, setEtablissementId] = useState("");
+  const [etablissementId, setEtablissementId] = useState(null);
   const [filieres, setFilieres] = useState([]);
   const [etablissements, setEtablissements] = useState([]);
   const [message, setMessage] = useState(null);
@@ -24,6 +25,7 @@ const CreateGroupe = () => {
         const res = await API.get("/groupes");
         setFilieres(res.data.filieres);
         setEtablissements([res.data.etablissement]); // Backend returns a single etablissement
+        setEtablissementId(res.data.etablissement.id);
       } catch (err) {
         setMessage({
           type: "error",
@@ -45,7 +47,6 @@ const CreateGroupe = () => {
         etablissement_id: etablissementId,
       });
       setMessage({ type: "success", text: "Groupe créé avec succès." });
-      setTimeout(() => navigate("/groupes"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -56,7 +57,15 @@ const CreateGroupe = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer un Groupe">
         <Label htmlFor="nom">Nom</Label>
         <Input
@@ -66,16 +75,18 @@ const CreateGroupe = () => {
           placeholder="nom"
           required
         />
-
         <Label htmlFor="annee">Année</Label>
-        <Input
+        <Select
           name="annee"
           value={annee}
           onChange={(e) => setAnnee(e.target.value)}
-          placeholder="1ere ou 2eme"
+          options={[
+            { value: "1ére année", label: "1ére année" },
+            { value: "2éme année", label: "2éme année" },
+            { value: "3éme année", label: "3éme année" },
+          ]}
           required
         />
-
         <Label htmlFor="filiereId">Filière</Label>
         <Select
           name="filiereId"
@@ -84,17 +95,19 @@ const CreateGroupe = () => {
           options={filieres.map((f) => ({ value: f.id, label: f.nom }))}
           required
         />
-
         <Label htmlFor="etablissementId">Établissement</Label>
         <Select
           name="etablissementId"
           value={etablissementId}
           onChange={(e) => setEtablissementId(e.target.value)}
           options={etablissements.map((e) => ({ value: e.id, label: e.nom }))}
+          disabled={etablissements.length === 1}
           required
         />
-
-        <Button type="submit">Créer</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Créer</Button>
+        </div>
       </Form>
     </>
   );

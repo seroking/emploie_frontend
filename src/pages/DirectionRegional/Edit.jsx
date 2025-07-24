@@ -64,7 +64,6 @@ const EditDirectionRegional = () => {
         type: "success",
         text: "Direction régionale modifiée avec succès.",
       });
-      setTimeout(() => navigate("/directions-regionales"), 1500);
     } catch (error) {
       setMessage({
         type: "error",
@@ -78,7 +77,15 @@ const EditDirectionRegional = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier une direction regionale">
         <Label htmlFor="nom">Nom</Label>
         <Input

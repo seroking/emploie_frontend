@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexFiliere = () => {
   const [filieres, setFilieres] = useState([]);
@@ -37,6 +37,8 @@ const IndexFiliere = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`la filière "${item.nom}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/filieres/${item.id}`); // Send DELETE request
       setFilieres((prev) => prev.filter((f) => f.id !== item.id)); // Remove deleted filiere
@@ -70,7 +72,7 @@ if (loading) return <Loading/>;
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
+      
       <Table
         columns={columns}
         data={filieres}

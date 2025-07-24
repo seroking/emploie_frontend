@@ -8,6 +8,7 @@ import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
+import BackButton from "../../components/ui/BackButton";
 
 const EditSalle = () => {
   const { id } = useParams();
@@ -55,7 +56,6 @@ const EditSalle = () => {
         etablissement_id: etablissementId,
       });
       setMessage({ type: "success", text: "Salle modifiée avec succès." });
-      setTimeout(() => navigate("/salles"), 1500);
     } catch (error) {
       setMessage({
         type: "error",
@@ -69,7 +69,15 @@ const EditSalle = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier une Salle">
         <Label htmlFor="nom">Nom</Label>
         <Input
@@ -112,7 +120,10 @@ const EditSalle = () => {
           required
         />
 
-        <Button type="submit">Modifier</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Modifier</Button>
+        </div>
       </Form>
     </>
   );

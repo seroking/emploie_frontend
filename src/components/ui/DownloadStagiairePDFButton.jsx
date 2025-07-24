@@ -4,6 +4,7 @@ import API from "../../services/api";
 export default function DownloadStagiairePdfButton({
   groupeId,
   etablissementId,
+  semaineId,
   nomGroupe,
   numero_semaine,
 }) {
@@ -11,7 +12,11 @@ export default function DownloadStagiairePdfButton({
     try {
       const response = await API.get("/stagiaire/export-emploi-du-temps", {
         responseType: "blob",
-        params: { groupe_id: groupeId, etablissement_id: etablissementId },
+        params: {
+          groupe_id: groupeId,
+          etablissement_id: etablissementId,
+          semaine_id: semaineId,
+        },
       });
 
       const blob = new Blob([response.data], { type: "application/pdf" });
@@ -28,7 +33,7 @@ export default function DownloadStagiairePdfButton({
   return (
     <button
       onClick={downloadPDF}
-      className="px-6 py-3 cursor-pointer rounded-lg mb-4 text-white float-end font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+      className="px-6 py-3 cursor-pointer rounded-lg text-white font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
       style={{
         background: "linear-gradient(to right, #2C3E50 0%, #3498DB 100%)",
         boxShadow: "0 4px 15px rgba(52, 152, 219, 0.4)",

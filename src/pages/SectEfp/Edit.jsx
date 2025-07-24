@@ -7,6 +7,7 @@ import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
+import BackButton from "../../components/ui/BackButton";
 
 const EditSectEfp = () => {
   const { id } = useParams();
@@ -52,7 +53,6 @@ const EditSectEfp = () => {
         type: "success",
         text: "Association secteur/établissement modifiée avec succès.",
       });
-      setTimeout(() => navigate("/secteurs-etablissements"), 1500);
     } catch (error) {
       setMessage({
         type: "error",
@@ -66,7 +66,15 @@ const EditSectEfp = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form
         onSubmit={handleSubmit}
         title="Modifier l'association Secteur-Etablissement"
@@ -83,7 +91,10 @@ const EditSectEfp = () => {
           required
         />
 
-        <Button type="submit">Modifier</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Modifier</Button>
+        </div>
       </Form>
     </>
   );

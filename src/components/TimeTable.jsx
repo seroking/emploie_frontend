@@ -9,10 +9,10 @@ import DownloadFormateurPdfButton from "./ui/DownloadFormateurPdfButton";
 const Timetable = () => {
   const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
   const creneaux = [
-    "08:30 - 10:50",
-    "11:10 - 13:30",
-    "13:30 - 15:50",
-    "16:10 - 18:30",
+    "08:30 - 11:00",
+    "11:00 - 13:30",
+    "13:30 - 16:00",
+    "16:00 - 18:30",
   ];
 
   const [seances, setSeances] = useState([]);
@@ -21,6 +21,7 @@ const Timetable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentWeekId, setCurrentWeekId] = useState(null);
+  const [nomEtablissement, setNomEtablissement] = useState("");
 
   dayjs.extend(weekday);
   dayjs.extend(weekOfYear);
@@ -31,6 +32,9 @@ const Timetable = () => {
       try {
         const response = await API.get("/semaines");
         setSemainesList(response.data.data);
+        setNomEtablissement(
+          response.data.data[0]?.etablissement?.nom || "Etablissement non spécifié"
+        );
 
         // Trouver la semaine courante (la plus récente)
         if (response.data.data.length > 0) {
@@ -194,66 +198,82 @@ const Timetable = () => {
               <p className="text-blue-600">
                 Année scolaire: {semaine.annee_scolaire?.nom || "Non spécifiée"}
               </p>
+              <p className="text-blue-600">
+                Etablissement : {nomEtablissement}
+              </p>
             </div>
-            <DownloadFormateurPdfButton
-              semaineId={semaine?.id}
-              numero_semaine={semaine.numero_semaine}
-            />
+            {seances.length > 0 && (
+              <>
+                <DownloadFormateurPdfButton
+                  semaineId={semaine?.id}
+                  numero_semaine={semaine.numero_semaine}
+                />
+              </>
+            )}
           </div>
         )}
 
-        <table className="table-auto border-collapse w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border border-gray-300 w-32 py-3 px-4 text-left">
-                Jour/Créneau
-              </th>
-              {creneaux.map((creneau, index) => (
-                <th
-                  key={index}
-                  className="border border-gray-300 py-3 px-4 text-sm font-medium text-gray-700"
-                >
-                  {creneau}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {jours.map((jour, rowIndex) => (
-              <tr
-                key={rowIndex}
-                className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
-              >
-                <td className="border border-gray-300 py-3 px-4 font-medium text-gray-800">
-                  {jour}
-                </td>
-                {creneaux.map((_, colIndex) => {
-                  const seanceOrSeances = organizedSeances[rowIndex][colIndex];
-                  return (
-                    <td
-                      key={colIndex}
-                      className="border border-gray-300 min-h-[4rem] p-1 hover:bg-gray-100 transition-colors"
+        {seances.length === 0 ? (
+          <div className="text-center text-gray-500">
+            Aucune séance prévue pour cette semaine.
+          </div>
+        ) : (
+          <>
+            <table className="table-auto border-collapse w-full bg-white shadow-md rounded-lg overflow-hidden">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="border border-gray-300 w-32 py-3 px-4 text-left">
+                    Jour/Créneau
+                  </th>
+                  {creneaux.map((creneau, index) => (
+                    <th
+                      key={index}
+                      className="border border-gray-300 py-3 px-4 text-sm font-medium text-gray-700"
                     >
-                      {seanceOrSeances ? (
-                        Array.isArray(seanceOrSeances) ? (
-                          seanceOrSeances.map((seance, i) => (
-                            <SeanceCard key={i} seance={seance} />
-                          ))
-                        ) : (
-                          <SeanceCard seance={seanceOrSeances} />
-                        )
-                      ) : (
-                        <div className="h-full flex items-center justify-center">
-                          <span className="text-xs text-gray-400">-</span>
-                        </div>
-                      )}
+                      {creneau}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {jours.map((jour, rowIndex) => (
+                  <tr
+                    key={rowIndex}
+                    className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  >
+                    <td className="border border-gray-300 py-3 px-4 font-medium text-gray-800">
+                      {jour}
                     </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    {creneaux.map((_, colIndex) => {
+                      const seanceOrSeances =
+                        organizedSeances[rowIndex][colIndex];
+                      return (
+                        <td
+                          key={colIndex}
+                          className="border border-gray-300 min-h-[4rem] p-1 hover:bg-gray-100 transition-colors"
+                        >
+                          {seanceOrSeances ? (
+                            Array.isArray(seanceOrSeances) ? (
+                              seanceOrSeances.map((seance, i) => (
+                                <SeanceCard key={i} seance={seance} />
+                              ))
+                            ) : (
+                              <SeanceCard seance={seanceOrSeances} />
+                            )
+                          ) : (
+                            <div className="h-full flex items-center justify-center">
+                              <span className="text-xs text-gray-400">-</span>
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
       </div>
     </div>
   );
@@ -271,7 +291,7 @@ const SeanceCard = ({ seance }) => {
       </div>
       {seance.type?.toLowerCase() === "distanciel" ? (
         <div className="text-xs text-center text-red-600 bg-red-50 px-1 rounded">
-          Distanciel
+          Teams
         </div>
       ) : (
         <div className="text-xs text-center text-green-700 bg-green-50 px-1 rounded">

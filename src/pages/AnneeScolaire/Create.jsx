@@ -22,8 +22,10 @@ const CreateAnneeScolaire = () => {
         date_debut: dateDebut,
         date_fin: dateFin,
       });
-      setMessage({ type: "success", text: "Année scolaire créée avec succès." });
-      setTimeout(() => navigate("/annees-scolaires"), 1500);
+      setMessage({
+        type: "success",
+        text: "Année scolaire créée avec succès.",
+      });
     } catch (err) {
       console.error(err.response || err);
       setMessage({ type: "error", text: "Erreur lors de la création." });
@@ -32,7 +34,15 @@ const CreateAnneeScolaire = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer une année scolaire">
         <Label htmlFor="nom">Nom</Label>
         <Input

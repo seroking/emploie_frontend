@@ -28,6 +28,7 @@ const CreateComplexe = () => {
             label: d.nom,
           }))
         );
+        setDirectionRegionalId(res.data.direction_regionales[0].id);
         setDirecteursComplexes(
           res.data.directeur_complexes.map((dc) => ({
             value: dc.id,
@@ -55,7 +56,6 @@ const CreateComplexe = () => {
         directeur_complexe_id: directeurComplexeId,
       });
       setMessage({ type: "success", text: "Complexe créé avec succès." });
-      setTimeout(() => navigate("/complexes"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -68,8 +68,16 @@ const CreateComplexe = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit} title="Créer un Complexe" >
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
+      <Form onSubmit={handleSubmit} title="Créer un Complexe">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"

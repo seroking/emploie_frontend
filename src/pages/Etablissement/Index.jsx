@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+
 
 const IndexEtablissement = () => {
   const [etablissements, setEtablissements] = useState([]);
@@ -81,7 +81,7 @@ const IndexEtablissement = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
+      
       <Table
         columns={columns}
         data={etablissements}

@@ -55,9 +55,12 @@ import IndexOffrir from "./pages/offrir/Index";
 import CreateOffrir from "./pages/offrir/Create";
 import EditOffrir from "./pages/offrir/Edit";
 import Timetable from "./components/TimeTable";
-import IndexStagiaire from "./pages/Stagiaire";
+import IndexStagiaire from "./pages/Stagiaire/Index";
 import TimeTableStagiaire from './components/ui/TimeTableStagiaire';
 import Home from "./pages/Home";
+import IndexAffectation from "./pages/Affectation/Index";
+import CreateAffectation from "./pages/Affectation/Create";
+import EditAffectation from "./pages/Affectation/Edit";
 
 function AppLayout({ sidebarOpen, setSidebarOpen }) {
   return (
@@ -141,11 +144,16 @@ function AppLayout({ sidebarOpen, setSidebarOpen }) {
             <Route path="/secteurs-etablissements/edit/:id" element={<EditSectEfp />} />
 
             {/* assosiation filiere-efp */}
+            <Route path="/affectations" element={<IndexAffectation />} />
+            <Route path="/affectations/create" element={<CreateAffectation />} />
+            <Route path="/affectations/edit/:id" element={<EditAffectation />} />
+
+            {/* assosiation filiere-efp */}
             <Route path="/offres-formations" element={<IndexOffrir />} />
             <Route path="/offres-formations/create" element={<CreateOffrir />} />
             <Route path="/offres-formations/edit/:id" element={<EditOffrir />} />
 
-            {/* assosiation filiere-efp */}
+            {/* mes seances - formateur - */}
             <Route path="/mes-seances" element={<Timetable />} />
 
             {/* Default redirect within layout */}

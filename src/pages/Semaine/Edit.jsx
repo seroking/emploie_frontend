@@ -8,6 +8,7 @@ import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
+import BackButton from "../../components/ui/BackButton";
 
 const EditSemaine = () => {
   const { id } = useParams();
@@ -56,7 +57,6 @@ const EditSemaine = () => {
         annee_scolaire_id: anneeScolaireId,
       });
       setMessage({ type: "success", text: "Semaine modifiée avec succès." });
-      setTimeout(() => navigate("/semaines"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -69,7 +69,15 @@ const EditSemaine = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier une Semaine">
         <Label htmlFor="numero">Numéro de semaine</Label>
         <Input
@@ -110,7 +118,10 @@ const EditSemaine = () => {
           required
         />
 
-        <Button type="submit">Modifier</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Modifier</Button>
+        </div>
       </Form>
     </>
   );

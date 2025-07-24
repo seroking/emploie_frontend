@@ -48,7 +48,6 @@ const CreateDirectionRegional = () => {
         directeur_regional_id: directeurRegionalId,
       });
       setMessage({ type: "success", text: "Direction régionale créée avec succès." });
-      setTimeout(() => navigate("/directions-regionales"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -59,7 +58,15 @@ const CreateDirectionRegional = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer une direction regional">
         <Label htmlFor="nom">Nom</Label>
         <Input

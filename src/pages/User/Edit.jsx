@@ -63,7 +63,6 @@ const EditUser = () => {
         role,
       });
       setMessage({ type: "success", text: "Utilisateur modifié avec succès." });
-      setTimeout(() => navigate("/utilisateurs"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -76,7 +75,15 @@ const EditUser = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="">
         <Label htmlFor="nom">Nom</Label>
         <Input

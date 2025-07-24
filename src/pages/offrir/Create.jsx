@@ -6,6 +6,7 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import BackButton from "../../components/ui/BackButton";
 
 const CreateOffrir = () => {
   const [filieres, setFilieres] = useState([]);
@@ -38,7 +39,6 @@ const CreateOffrir = () => {
         type: "success",
         text: "Offre de formation créée avec succès.",
       });
-      setTimeout(() => navigate("/offres-formations"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -49,7 +49,15 @@ const CreateOffrir = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form
         onSubmit={handleSubmit}
         title="Créer une nouvelle offre de formation"
@@ -65,8 +73,10 @@ const CreateOffrir = () => {
           }))}
           required
         />
-
-        <Button type="submit">Créer</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Créer</Button>
+        </div>
       </Form>
     </>
   );

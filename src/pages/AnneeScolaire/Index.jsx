@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 import Loading from "../../components/ui/Loading";
 
 const IndexAnneeScolaire = () => {
@@ -20,6 +20,8 @@ const IndexAnneeScolaire = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`l'année scolaire "${item.nom}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/annees-scolaires/${item.id}`);
       setAnnees((prev) => prev.filter((a) => a.id !== item.id));
@@ -52,8 +54,6 @@ const IndexAnneeScolaire = () => {
       </div>
 
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
-
       <Table
         columns={columns}
         data={annees}

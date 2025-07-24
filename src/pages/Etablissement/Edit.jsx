@@ -81,7 +81,6 @@ const EditEtablissement = () => {
         complexe_id: complexeId,
       });
       setMessage({ type: "success", text: "Établissement modifié." });
-      setTimeout(() => navigate("/etablissements"), 1500);
     } catch (err) {
       setMessage({ type: "error", text: "Erreur de modification." });
     }
@@ -91,7 +90,15 @@ const EditEtablissement = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier Établissement">
         <Label htmlFor="nom">Nom</Label>
         <Input

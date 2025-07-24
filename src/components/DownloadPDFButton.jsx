@@ -1,18 +1,24 @@
 import { saveAs } from "file-saver";
 import API from "../services/api";
 
-export default function DownloadPDFButton({ selectedSecteur, secteurNom, numero_semaine }) {
+export default function DownloadPDFButton({
+  selectedSecteur,
+  secteurNom,
+  numero_semaine,
+  semaineId,
+}) {
   const downloadPDF = async () => {
     try {
-      const response = await API.get(
-        `/export-emploi-du-temps/${selectedSecteur}`,
-        {
-          responseType: "blob", // important pour PDF
-        }
-      );
+      // Construire l'URL avec le secteur et l'ID de semaine
+      const url = semaineId
+        ? `/export-emploi-du-temps/${selectedSecteur}/${semaineId}`
+        : `/export-emploi-du-temps/${selectedSecteur}`;
+
+      const response = await API.get(url, {
+        responseType: "blob",
+      });
 
       const blob = new Blob([response.data], { type: "application/pdf" });
-      // "emploi_du_temps.pdf"
       saveAs(
         blob,
         `emploi_du_temps_${secteurNom}_semaine_${numero_semaine}.pdf`

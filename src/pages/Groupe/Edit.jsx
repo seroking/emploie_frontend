@@ -8,6 +8,7 @@ import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
+import BackButton from "../../components/ui/BackButton";
 
 const EditGroupe = () => {
   const { id } = useParams();
@@ -58,7 +59,6 @@ const EditGroupe = () => {
         etablissement_id: etablissementId,
       });
       setMessage({ type: "success", text: "Groupe modifié avec succès." });
-      setTimeout(() => navigate("/groupes"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -71,7 +71,15 @@ const EditGroupe = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier un Groupe">
         <Label htmlFor="nom">Nom</Label>
         <Input
@@ -82,11 +90,15 @@ const EditGroupe = () => {
         />
 
         <Label htmlFor="annee">Année scolaire</Label>
-        <Input
+        <Select
           name="annee"
           value={annee}
           onChange={(e) => setAnnee(e.target.value)}
-          placeholder="1 ou 2"
+          options={[
+            { value: "1ére année", label: "1ére année" },
+            { value: "2éme année", label: "2éme année" },
+            { value: "3éme année", label: "3éme année" },
+          ]}
           required
         />
 
@@ -108,7 +120,10 @@ const EditGroupe = () => {
           required
         />
 
-        <Button type="submit">Modifier</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Modifier</Button>
+        </div>
       </Form>
     </>
   );

@@ -8,6 +8,7 @@ import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
+import BackButton from "../../components/ui/BackButton";
 
 const EditModule = () => {
   const { id } = useParams();
@@ -62,7 +63,6 @@ const EditModule = () => {
         filiere_id: filiereId,
       });
       setMessage({ type: "success", text: "Module modifié avec succès." });
-      setTimeout(() => navigate("/modules"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -75,7 +75,15 @@ const EditModule = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier un Module">
         <Label htmlFor="nom">Nom du module</Label>
         <Input
@@ -136,7 +144,10 @@ const EditModule = () => {
           required
         />
 
-        <Button type="submit">Modifier</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Modifier</Button>
+        </div>
       </Form>
     </>
   );

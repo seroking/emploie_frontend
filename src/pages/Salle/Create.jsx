@@ -7,6 +7,7 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
+import BackButton from "../../components/ui/BackButton";
 
 const CreateSalle = () => {
   const [nom, setNom] = useState("");
@@ -22,6 +23,7 @@ const CreateSalle = () => {
       try {
         const response = await API.get("/salles"); // Fetch etablissements
         setEtablissements([response.data.etablissement]);
+        setEtablissementId(response.data.etablissement.id);
       } catch (error) {
         setMessage({
           type: "error",
@@ -43,7 +45,6 @@ const CreateSalle = () => {
         etablissement_id: etablissementId,
       });
       setMessage({ type: "success", text: "Salle créée avec succès." });
-      setTimeout(() => navigate("/salles"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -54,7 +55,15 @@ const CreateSalle = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer une Salle">
         <Label htmlFor="nom">Nom</Label>
         <Input
@@ -93,10 +102,14 @@ const CreateSalle = () => {
           value={etablissementId}
           onChange={(e) => setEtablissementId(e.target.value)}
           options={etablissements.map((e) => ({ value: e.id, label: e.nom }))}
+          disabled={etablissements.length === 1}
           required
         />
 
-        <Button type="submit">Créer</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Créer</Button>
+        </div>
       </Form>
     </>
   );

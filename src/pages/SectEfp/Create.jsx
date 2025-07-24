@@ -2,7 +2,7 @@ import React, { useState, useEffect, use } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "../../components/ui/Form";
 import Label from "../../components/ui/Label";
-import Input from "../../components/ui/Input";
+import BackButton from "../../components/ui/BackButton";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import Message from "../../components/ui/Message";
@@ -36,7 +36,6 @@ const CreateSectEfp = () => {
         secteur_id: secteurId,
       });
       setMessage({ type: "success", text: "sect/efp créée avec succès." });
-      setTimeout(() => navigate("/secteurs-etablissements"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -47,8 +46,19 @@ const CreateSectEfp = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit} title="Créer une nouvelle association Secteur-Etablissement">
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
+      <Form
+        onSubmit={handleSubmit}
+        title="Créer une nouvelle association Secteur-Etablissement"
+      >
         <Label htmlFor="secteurId">Secteur</Label>
         <Select
           name="secteur_id"
@@ -60,7 +70,10 @@ const CreateSectEfp = () => {
           options={[...secteurs.map((s) => ({ value: s.id, label: s.nom }))]}
           required
         />
-        <Button type="submit">Créer</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Créer</Button>
+        </div>
       </Form>
     </>
   );

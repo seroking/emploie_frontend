@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexSalle = () => {
   const [salles, setSalles] = useState([]);
@@ -37,6 +37,8 @@ const IndexSalle = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`la salle "${item.nom}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/salles/${item.id}`); // Send DELETE request
       setSalles((prev) => prev.filter((s) => s.id !== item.id)); // Remove deleted salle
@@ -73,7 +75,6 @@ const IndexSalle = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={salles}

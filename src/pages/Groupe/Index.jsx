@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexGroupe = () => {
   const [groupes, setGroupes] = useState([]);
@@ -40,6 +40,8 @@ const IndexGroupe = () => {
 
   // Handle delete operation
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`le groupe "${item.nom}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/groupes/${item.id}`); // Backend delete endpoint
       setGroupes((prev) => prev.filter((g) => g.id !== item.id)); // Remove deleted item
@@ -77,7 +79,7 @@ const IndexGroupe = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
+      
       <Table
         columns={columns}
         data={groupes}

@@ -36,7 +36,6 @@ const CreateFiliere = () => {
     try {
       await API.post("/filieres", { nom, secteur_id: secteurId }); // Send POST request
       setMessage({ type: "success", text: "Filière créée avec succès." });
-      setTimeout(() => navigate("/filieres"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -47,7 +46,15 @@ const CreateFiliere = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer une nouvelle filière">
         <Label htmlFor="nom">Nom</Label>
         <Input
@@ -61,15 +68,12 @@ const CreateFiliere = () => {
         <Label htmlFor="secteurId">Secteur</Label>
         <Select
           name="secteurId"
-          
           value={secteurId}
           onChange={(e) => {
             console.log(e.target.value);
             setSecteurId(e.target.value);
           }}
-          options={[
-            ...secteurs.map((s) => ({ value: s.id, label: s.nom })),
-          ]}
+          options={[...secteurs.map((s) => ({ value: s.id, label: s.nom }))]}
           required
         />
 

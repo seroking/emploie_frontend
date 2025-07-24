@@ -68,7 +68,6 @@ const EditComplexe = () => {
         directeur_complexe_id: directeurComplexeId,
       });
       setMessage({ type: "success", text: "Complexe modifié avec succès." });
-      setTimeout(() => navigate("/complexes"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -81,7 +80,15 @@ const EditComplexe = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier un Complexe">
         <Label htmlFor="nom">Nom</Label>
         <Input

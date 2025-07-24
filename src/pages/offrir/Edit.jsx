@@ -57,7 +57,6 @@ const EditOffrir = () => {
         type: "success",
         text: "Offre de formation modifiée avec succès.",
       });
-      setTimeout(() => navigate("/offres-formations"), 1500);
     } catch (error) {
       setMessage({
         type: "error",
@@ -71,7 +70,15 @@ const EditOffrir = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Modifier l'offre de formation">
         <Label htmlFor="filiereId">Filière</Label>
         <Select

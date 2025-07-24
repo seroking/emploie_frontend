@@ -13,7 +13,6 @@ const IndexStagiaire = () => {
   const [secteurs, setSecteurs] = useState([]);
   const [filieres, setFilieres] = useState([]);
   const [groupes, setGroupes] = useState([]);
-  const [seances, setSeances] = useState([]);
 
   const [selectedDirection, setSelectedDirection] = useState("");
   const [selectedComplexe, setSelectedComplexe] = useState("");
@@ -134,29 +133,11 @@ const IndexStagiaire = () => {
     }
   }, [selectedFiliere, groupes]);
 
-  useEffect(() => {
-    const fetchSeances = async () => {
-      if (selectedGroupe && selectedEtablissement) {
-        try {
-          const seanceResponse = await API.get(
-            `getSeance/${selectedEtablissement}/${selectedGroupe}`
-          );
-          setSeances(seanceResponse.data.data);
-        } catch (error) {
-          console.log(error);
-        }
-      } else {
-        setSeances([]);
-      }
-    };
-    fetchSeances();
-  }, [selectedGroupe, selectedEtablissement]);
-
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
     navigate("/espace-stagiaires/emploi-du-temps", {
-      state: { seances },
+      state: { selectedGroupe, selectedEtablissement, filteredGroupe },
     });
     setLoading(false);
   };

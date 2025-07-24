@@ -47,7 +47,6 @@ const EditFerie = () => {
         date_fin: dateFin,
       });
       setMessage({ type: "success", text: "Jour férié modifié avec succès." });
-      setTimeout(() => navigate("/feries"), 1500);
     } catch (error) {
       setMessage({
         type: "error",
@@ -61,8 +60,16 @@ const EditFerie = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
-      <Form onSubmit={handleSubmit} title="Modifier un jour férié">
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
+      <Form onSubmit={handleSubmit} title="Modifier une vacance">
         <Label htmlFor="nom">Nom</Label>
         <Input
           name="nom"

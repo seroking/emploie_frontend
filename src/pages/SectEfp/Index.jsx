@@ -4,7 +4,7 @@ import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexSectEfp = () => {
   const [sectEfp, setSectEfp] = useState([]);
@@ -36,6 +36,8 @@ const IndexSectEfp = () => {
   }, []);
 
   const handleDelete = async (item) => {
+    const confirmed = await MessageAlert(`le secteur "${item.secteur_info}"`);
+    if (!confirmed) return;
     try {
       await API.delete(`/secteurs-etablissements/${item.id}`);
       setSectEfp((prev) => prev.filter((c) => c.id !== item.id));
@@ -75,7 +77,6 @@ const IndexSectEfp = () => {
         </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
       <Table
         columns={columns}
         data={sectEfp}

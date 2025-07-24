@@ -38,7 +38,7 @@ const CreateEtablissement = () => {
             value: c.id,
             label: c.nom,
           }))
-        )
+        );
         // if (res.data.complexe) {
         //   setComplexes([
         //     {
@@ -69,7 +69,6 @@ const CreateEtablissement = () => {
         complexe_id: complexeId,
       });
       setMessage({ type: "success", text: "Etablissement créé avec succès." });
-      setTimeout(() => navigate("/etablissements"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -80,7 +79,15 @@ const CreateEtablissement = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer un établissement">
         <Label htmlFor="nom">Nom</Label>
         <Input

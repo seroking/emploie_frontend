@@ -57,7 +57,6 @@ const CreateUser = () => {
       });
 
       setMessage({ type: "success", text: "Utilisateur créé avec succès." });
-      setTimeout(() => navigate("/utilisateurs"), 1500);
     } catch (err) {
       setMessage({
         type: "error",
@@ -68,7 +67,15 @@ const CreateUser = () => {
 
   return (
     <>
-      {message && <Message type={message.type} text={message.text} />}
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
       <Form onSubmit={handleSubmit} title="Créer un Utilisateur">
         <Label htmlFor="nom">Nom</Label>
         <Input

@@ -7,11 +7,11 @@ import Select from "../../components/ui/Select";
 import Form from "../../components/ui/Form";
 import Button from "../../components/ui/Button";
 import Label from "../../components/ui/Label";
+import BackButton from "../../components/ui/BackButton";
 
 const CreateFormateur = () => {
   // États séparés pour chaque champ
   const [specialite, setSpecialite] = useState("");
-  const [heuresHebdomadaire, setHeuresHebdomadaire] = useState("");
   const [utilisateurId, setUtilisateurId] = useState("");
   const [etablissementId, setEtablissementId] = useState("");
   const [complexeId, setComplexeId] = useState("");
@@ -30,11 +30,14 @@ const CreateFormateur = () => {
       try {
         const response = await API.get("/formateurs");
         setUtilisateurs(response.data.utilisateurs || []);
-        setEtablissements(response.data.etablissements || []);
-        setComplexes(response.data.complexes || []);
-        setDirectionsRegionales(response.data.direction_regionales || []);
+        setEtablissements(response.data.etablissement || []);
+        setComplexes(response.data.complexe || []);
+        setDirectionsRegionales(response.data.direction_regional || []);
       } catch (error) {
-        setMessage({ type: "error", text: "Erreur lors du chargement des données." });
+        setMessage({
+          type: "error",
+          text: "Erreur lors du chargement des données.",
+        });
       }
     };
     fetchData();
@@ -46,26 +49,37 @@ const CreateFormateur = () => {
     try {
       await API.post("/formateurs", {
         specialite,
-        heures_hebdomadaire: Number(heuresHebdomadaire),
         utilisateur_id: utilisateurId,
         etablissement_id: etablissementId,
         complexe_id: complexeId,
         direction_regional_id: directionRegionalId,
       });
       setMessage({ type: "success", text: "Formateur créé avec succès." });
-      setTimeout(() => navigate("/formateurs"), 1500);
     } catch (error) {
-      setMessage({ type: "error", text: error.response?.data?.message || "Erreur lors de la création." });
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Erreur lors de la création.",
+      });
     }
   };
 
   return (
     <>
-
-      {message && <Message type={message.type} text={message.text} />}
-
-      <Form onSubmit={handleSubmit} className="space-y-4" title="Cree un formateur">
-      <Label htmlFor="specialite">Spécialité</Label>
+      {message && (
+        <Message
+          type={message.type}
+          text={message.text}
+          onConfirm={
+            message.type === "success" ? () => navigate(-1) : undefined
+          }
+        />
+      )}
+      <Form
+        onSubmit={handleSubmit}
+        className="space-y-4"
+        title="Créér un formateur"
+      >
+        <Label htmlFor="specialite">Spécialité</Label>
         <Input
           label="Spécialité"
           name="specialite"
@@ -74,24 +88,13 @@ const CreateFormateur = () => {
           onChange={(e) => setSpecialite(e.target.value)}
           required
         />
-        <Label htmlFor="heures_hebdomadaire">Heures Hebdomadaires</Label>
-        <Input
-          label="Heures Hebdomadaires"
-          name="heures_hebdomadaire"
-          type="number"
-          placeholder={"heures_hebdomadaire"}
-          value={heuresHebdomadaire}
-          onChange={(e) => setHeuresHebdomadaire(e.target.value)}
-          min={1}
-          required
-        />
         <Label htmlFor="utilisateur_id">Utilisateur</Label>
         <Select
           label="Utilisateur"
           name="utilisateur_id"
           value={utilisateurId}
           onChange={(e) => setUtilisateurId(e.target.value)}
-          options={utilisateurs.map(u => ({ value: u.id, label: u.nom }))}
+          options={utilisateurs.map((u) => ({ value: u.id, label: u.nom }))}
           required
         />
         <Label htmlFor="etablissement_id">Établissement</Label>
@@ -100,7 +103,7 @@ const CreateFormateur = () => {
           name="etablissement_id"
           value={etablissementId}
           onChange={(e) => setEtablissementId(e.target.value)}
-          options={etablissements.map(e => ({ value: e.id, label: e.nom }))}
+          options={etablissements.map((e) => ({ value: e.id, label: e.nom }))}
           required
         />
         <Label htmlFor="complexe_id">Complexe</Label>
@@ -109,7 +112,7 @@ const CreateFormateur = () => {
           name="complexe_id"
           value={complexeId}
           onChange={(e) => setComplexeId(e.target.value)}
-          options={complexes.map(c => ({ value: c.id, label: c.nom }))}
+          options={complexes.map((c) => ({ value: c.id, label: c.nom }))}
           required
         />
         <Label htmlFor="direction_regional_id">Direction Régionale</Label>
@@ -118,10 +121,16 @@ const CreateFormateur = () => {
           name="direction_regional_id"
           value={directionRegionalId}
           onChange={(e) => setDirectionRegionalId(e.target.value)}
-          options={directionsRegionales.map(d => ({ value: d.id, label: d.nom }))}
+          options={directionsRegionales.map((d) => ({
+            value: d.id,
+            label: d.nom,
+          }))}
           required
         />
-        <Button type="submit">Créer</Button>
+        <div className="flex">
+          <BackButton />
+          <Button type="submit">Créer</Button>
+        </div>
       </Form>
     </>
   );

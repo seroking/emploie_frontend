@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/ui/Table";
 import Message from "../../components/ui/Message";
 import API from "../../services/api";
-import { AuthContext } from "../../contexts/AuthContext";
 import Loading from "../../components/ui/Loading";
-import HideMessage from "../../components/ui/hideMessage";
+import MessageAlert from "../../components/ui/MessageAlert";
 
 const IndexFormateur = () => {
   const [formateurs, setFormateurs] = useState([]);
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,7 +42,10 @@ const IndexFormateur = () => {
   }, []);
 
   const handleDelete = async (item) => {
-    if (user?.role === "DirecteurEtablissement") return;
+    const confirmed = await MessageAlert(
+      `le formateur "${item.utilisateur.nom}"`
+    );
+    if (!confirmed) return;
     try {
       await API.delete(`/formateurs/${item.id}`);
       setFormateurs((prev) => prev.filter((f) => f.id !== item.id));
@@ -62,12 +63,11 @@ const IndexFormateur = () => {
   };
 
   const columns = [
-    { key: "utilisateur_nom", label: "Utilisateur" },
+    { key: "utilisateur_nom", label: "Nom" },
     { key: "etablissement_nom", label: "Établissement" },
     { key: "complexe_nom", label: "Complexe" },
     { key: "direction_regional_nom", label: "Direction Régionale" },
     { key: "specialite", label: "Spécialité" },
-    { key: "heures_hebdomadaire", label: "Heures Hebdo" },
   ];
 
   if (loading) return <Loading />;
@@ -76,24 +76,20 @@ const IndexFormateur = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Liste des formateurs</h1>
-        {user?.role !== "DirecteurEtablissement" && (
-          <button
-            onClick={() => navigate("/formateurs/create")}
-            className="justify-end w-auto px-4 py-2 cursor-pointer rounded-xl bg-gradient-to-r from-indigo-600 to-purple-400 text-white font-semibold shadow-md hover:opacity-90 transition"
-          >
-            + Créer un formateur
-          </button>
-        )}
+        <button
+          onClick={() => navigate("/formateurs/create")}
+          className="justify-end w-auto px-4 py-2 cursor-pointer rounded-xl bg-gradient-to-r from-indigo-600 to-purple-400 text-white font-semibold shadow-md hover:opacity-90 transition"
+        >
+          + Créer un formateur
+        </button>
       </div>
       {message && <Message type={message.type} text={message.text} />}
-      <HideMessage message={message} onHide={() => setMessage(null)} />
+
       <Table
         columns={columns}
         data={formateurs}
         onEdit={handleEdit}
-        onDelete={
-          user?.role !== "DirecteurEtablissement" ? handleDelete : () => {}
-        }
+        onDelete={handleDelete}
       />
     </div>
   );
