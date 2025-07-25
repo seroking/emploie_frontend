@@ -1,3 +1,4 @@
+// Calendar.jsx
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
@@ -32,31 +33,40 @@ export default function Calendar() {
     modules: [],
     formateurs: [],
   });
+  // New state to store holidays
+  const [feries, setFeries] = useState([]);
 
   useEffect(() => {
-    const fetchSemaines = async () => {
+    const fetchSemainesAndFeries = async () => {
       try {
-        const response = await API.get("/semaines");
-        setSemaines(response.data.data || []);
-        setAnneeScolaireNom(response.data.annee_scolaire_nom || null);
+        const [semainesResponse, feriesResponse] = await Promise.all([
+          API.get("/semaines"),
+          API.get("/feries"), // Fetch holidays
+        ]);
 
-        // Sélectionner la semaine courante (la première dans la liste)
-        if (response.data.data && response.data.data.length > 0) {
-          const currentWeek = response.data.data[0];
+        setSemaines(semainesResponse.data.data || []);
+        setAnneeScolaireNom(semainesResponse.data.annee_scolaire_nom || null);
+        setFeries(feriesResponse.data.data || []); // Set holidays
+
+        if (
+          semainesResponse.data.data &&
+          semainesResponse.data.data.length > 0
+        ) {
+          const currentWeek = semainesResponse.data.data[0];
           setCurrentWeekId(currentWeek.id);
           setCurrentSemaine(currentWeek);
         }
       } catch (error) {
         setMessage({
           type: "error",
-          text: "Erreur de chargement des semaines.",
+          text: "Erreur de chargement des données initiales (semaines ou jours fériés).",
         });
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSemaines();
+    fetchSemainesAndFeries();
   }, []);
 
   const handleWeekNavigation = async (direction) => {
@@ -328,6 +338,18 @@ export default function Calendar() {
     return dayMap[formatted] || formatted;
   };
 
+  // Function to check if a day is a holiday
+  const isHoliday = (day) => {
+    const holiday = feries.find(
+      (ferie) =>
+        day.isSame(dayjs(ferie.date_debut), "day") ||
+        (day.isAfter(dayjs(ferie.date_debut), "day") &&
+          day.isBefore(dayjs(ferie.date_fin), "day")) ||
+        day.isSame(dayjs(ferie.date_fin), "day")
+    );
+    return holiday ? holiday.nom : null;
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -424,6 +446,7 @@ export default function Calendar() {
                           onDuplicateSeance={handleDuplicateSeance}
                           resources={resources}
                           currentSemaine={currentSemaine}
+                          isHoliday={isHoliday(day)} // Pass holiday info
                         />
                       ))}
                     </tr>

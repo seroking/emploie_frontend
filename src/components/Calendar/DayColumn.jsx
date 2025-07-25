@@ -1,7 +1,8 @@
+// DayColumn.jsx
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import API from "../../services/api"; // Assuming this path is correct
+import API from "../../services/api";
 
 dayjs.extend(isBetween);
 
@@ -14,6 +15,7 @@ export default function DayColumn({
   onDeleteSeance,
   resources,
   currentSemaine,
+  isHoliday, // Ce prop contiendra le nom du jour férié ou null
 }) {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
@@ -30,12 +32,11 @@ export default function DayColumn({
     heure_fin: "",
   });
 
-  const [contextMenu, setContextMenu] = useState(null); // State for context menu position
+  const [contextMenu, setContextMenu] = useState(null);
 
   const MAX_SEANCES_PER_DAY = 4;
-  const canAddMoreSeances = seances.length < MAX_SEANCES_PER_DAY;
+  const canAddMoreSeances = seances.length < MAX_SEANCES_PER_DAY && !isHoliday;
 
-  // Update semaine_id when currentSemaine changes
   useEffect(() => {
     if (currentSemaine) {
       setFormData((prev) => ({
@@ -46,7 +47,7 @@ export default function DayColumn({
   }, [currentSemaine]);
 
   const handleAddClick = () => {
-    if (!canAddMoreSeances) return;
+    if (!canAddMoreSeances || isHoliday) return; // Ne pas ajouter si c'est un jour férié
 
     setFormData({
       salle_id: "",
@@ -54,7 +55,7 @@ export default function DayColumn({
       formateur_id: "",
       semaine_id: currentSemaine?.id || "",
       type: "presentiel",
-      heure_debut: "08:30", // Default to first slot when adding new
+      heure_debut: "08:30",
       heure_fin: "11:00",
     });
     setModalMode("add");
@@ -62,6 +63,7 @@ export default function DayColumn({
   };
 
   const handleEditClick = (seance) => {
+    if (isHoliday) return; // Ne pas modifier si c'est un jour férié
     setSelectedSeance(seance);
     setFormData({
       salle_id: seance.salle_id,
@@ -77,6 +79,7 @@ export default function DayColumn({
   };
 
   const handleDeleteClick = async (seanceId) => {
+    if (isHoliday) return; // Ne pas supprimer si c'est un jour férié
     try {
       await onDeleteSeance(seanceId);
     } catch (error) {
@@ -85,10 +88,11 @@ export default function DayColumn({
   };
 
   const handleDuplicateClick = (seance) => {
+    if (isHoliday) return; // Ne pas dupliquer si c'est un jour férié
+
     let newHeureDebut = seance.heure_debut;
     let newHeureFin = seance.heure_fin;
 
-    // Apply the duplication logic for time slots
     if (seance.heure_debut === "08:30:00" && seance.heure_fin === "11:00:00") {
       newHeureDebut = "11:00";
       newHeureFin = "13:30";
@@ -105,9 +109,6 @@ export default function DayColumn({
       newHeureDebut = "16:00";
       newHeureFin = "18:30";
     } else {
-      // If the existing time doesn't match a rule, default to the next logical slot or keep original
-      // For this example, we'll just keep the original times if no rule matches
-      // Or you could set a default like '08:30' - '11:00'
       console.warn(
         "No specific time rule for duplication. Keeping original times."
       );
@@ -119,12 +120,12 @@ export default function DayColumn({
       formateur_id: seance.formateur_id,
       semaine_id: seance.semaine_id,
       type: seance.type,
-      heure_debut: newHeureDebut.slice(0, 5), // Ensure format HH:MM
-      heure_fin: newHeureFin.slice(0, 5), // Ensure format HH:MM
+      heure_debut: newHeureDebut.slice(0, 5),
+      heure_fin: newHeureFin.slice(0, 5),
     });
-    setModalMode("add"); // Duplicate means adding a new one
+    setModalMode("add");
     setShowModal(true);
-    setContextMenu(null); // Close context menu
+    setContextMenu(null);
   };
 
   const handleClose = () => {
@@ -148,6 +149,8 @@ export default function DayColumn({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isHoliday) return; // Ne pas soumettre si c'est un jour férié
+
     try {
       const seanceData = {
         ...formData,
@@ -162,7 +165,6 @@ export default function DayColumn({
       }
 
       setShowModal(false);
-      // Reset form data after submission
       setFormData({
         salle_id: "",
         module_id: "",
@@ -222,7 +224,8 @@ export default function DayColumn({
   }, [groupId]);
 
   const handleContextMenu = (e, seance) => {
-    e.preventDefault(); // Prevent default browser context menu
+    e.preventDefault();
+    if (isHoliday) return; // Ne pas afficher le menu contextuel si c'est un jour férié
     setContextMenu({
       x: e.clientX,
       y: e.clientY,
@@ -231,10 +234,9 @@ export default function DayColumn({
   };
 
   const handleClickOutsideContextMenu = () => {
-    setContextMenu(null); // Close context menu when clicking outside
+    setContextMenu(null);
   };
 
-  // Add event listener for clicks outside the context menu
   useEffect(() => {
     if (contextMenu) {
       document.addEventListener("click", handleClickOutsideContextMenu);
@@ -246,10 +248,19 @@ export default function DayColumn({
     };
   }, [contextMenu]);
 
+  // Déterminer la classe et le titre en fonction de isHoliday
+  const tdClassName = `align-top px-1 py-1 border border-gray-200 bg-gradient-to-br from-[#f8f7fd] to-[#f4f6fa] min-w-[110px] transition-shadow
+    ${isHoliday ? "cursor-not-allowed bg-gray-100 opacity-60" : ""}`;
+  const tdTitle = isHoliday ? `Jour férié: ${isHoliday}` : "";
+
   return (
     <>
-      <td className="align-top px-1 py-1 border border-gray-200 bg-gradient-to-br from-[#f8f7fd] to-[#f4f6fa] min-w-[110px] transition-shadow">
-        {seances.length === 0 ? (
+      <td className={tdClassName} title={tdTitle}>
+        {isHoliday ? (
+          <div className="flex items-center justify-center min-h-[80px] text-lg font-semibold text-gray-700 text-center p-2">
+            {isHoliday}
+          </div>
+        ) : seances.length === 0 ? (
           <div className="flex items-center justify-center min-h-[80px]">
             {canAddMoreSeances && (
               <button
@@ -267,9 +278,14 @@ export default function DayColumn({
             {seances.map((seance) => (
               <div
                 key={seance.id}
-                className="bg-gradient-to- cursor-pointer from-[#f3f0ff] to-[#e0e7ff] w-28 rounded-lg p-2 text-xs text-gray-700 font-medium shadow hover:shadow-md transition-all duration-200 relative group"
+                className={`bg-gradient-to-from-[#f3f0ff] to-[#e0e7ff] w-28 rounded-lg p-2 text-xs text-gray-700 font-medium shadow hover:shadow-md transition-all duration-200 relative group
+                  ${
+                    isHoliday
+                      ? "cursor-not-allowed opacity-60"
+                      : "cursor-pointer"
+                  }`}
                 onClick={() => handleEditClick(seance)}
-                onContextMenu={(e) => handleContextMenu(e, seance)} // Right-click handler
+                onContextMenu={(e) => handleContextMenu(e, seance)}
               >
                 <div className="text-xs font-bold text-center">
                   {seance.heure_debut.slice(0, 5)} -
@@ -292,17 +308,19 @@ export default function DayColumn({
                     ? seance.salle?.nom || "N/A"
                     : "Teams"}
                 </div>
-                <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteClick(seance.id);
-                    }}
-                    className="text-red-500 cursor-pointer hover:text-red-700"
-                  >
-                    ×
-                  </button>
-                </div>
+                {!isHoliday && (
+                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(seance.id);
+                      }}
+                      className="text-red-500 cursor-pointer hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
             {canAddMoreSeances && (
@@ -338,6 +356,7 @@ export default function DayColumn({
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded"
                   required
+                  disabled={isHoliday}
                 >
                   <option value="">Sélectionnez un module</option>
                   {filteredModules.map((m) => (
@@ -360,6 +379,7 @@ export default function DayColumn({
                       onChange={handleChange}
                       className="w-full px-3 py-2 border rounded"
                       required
+                      disabled={isHoliday}
                     >
                       {filteredFormateurs.map((f) => (
                         <option key={f.formateur.id} value={f.formateur.id}>
@@ -381,6 +401,7 @@ export default function DayColumn({
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded"
                   required
+                  disabled={isHoliday}
                 >
                   <option value="presentiel">Présentiel</option>
                   <option value="distanciel">Distanciel</option>
@@ -398,6 +419,7 @@ export default function DayColumn({
                     onChange={handleChange}
                     className="w-full px-3 py-2 border rounded"
                     required
+                    disabled={isHoliday}
                   >
                     <option value="">Sélectionnez une salle</option>
                     {resources.salles.map((s) => (
@@ -421,6 +443,7 @@ export default function DayColumn({
                     onChange={handleChange}
                     className="w-full px-3 py-2 border rounded"
                     required
+                    disabled={isHoliday}
                   />
                 </div>
                 <div>
@@ -434,6 +457,7 @@ export default function DayColumn({
                     onChange={handleChange}
                     className="w-full px-3 py-2 border rounded"
                     required
+                    disabled={isHoliday}
                   />
                 </div>
               </div>
@@ -448,7 +472,12 @@ export default function DayColumn({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded cursor-pointer bg-[#7C5CFC] text-white hover:bg-[#5a3ee6]"
+                  className={`px-4 py-2 rounded text-white ${
+                    isHoliday
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#7C5CFC] hover:bg-[#5a3ee6]"
+                  }`}
+                  disabled={isHoliday}
                 >
                   {modalMode === "add" ? "Ajouter" : "Modifier"}
                 </button>
@@ -462,21 +491,21 @@ export default function DayColumn({
         <div
           className="absolute z-50 bg-white border border-gray-200 rounded-md shadow-lg py-1"
           style={{ top: contextMenu.y, left: contextMenu.x }}
-          onClick={(e) => e.stopPropagation()} // Prevent closing on menu item click
+          onClick={(e) => e.stopPropagation()}
         >
-          <ul className="text-sm">
-            {canAddMoreSeances && (
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          {!isHoliday && (
+            <>
+              <button
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 onClick={() => {
                   handleDuplicateClick(contextMenu.seance);
                   setContextMenu(null);
                 }}
               >
                 Dupliquer
-              </li>
-            )}
-          </ul>
+              </button>
+            </>
+          )}
         </div>
       )}
     </>
