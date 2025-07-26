@@ -3,9 +3,10 @@ import API from "../services/api";
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 import weekOfYear from "dayjs/plugin/weekOfYear";
-import WeekNavigationFormateur from "./Calendar/weekNavigationFormateur";
+import WeekNavigationFormateur from "../components/Calendar/WeekNavigationFormateur";
 import Loading from "../components/ui/Loading";
-import DownloadFormateurPdfButton from "./ui/DownloadFormateurPdfButton";
+import DownloadFormateurPdfButton from "../components/ui/DownloadFormateurPdfButton";
+
 const Timetable = () => {
   const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
   const creneaux = [
@@ -26,21 +27,25 @@ const Timetable = () => {
   dayjs.extend(weekday);
   dayjs.extend(weekOfYear);
 
-  // Charger la liste des semaines disponibles
   useEffect(() => {
     const fetchSemaines = async () => {
       try {
         const response = await API.get("/semaines");
-        setSemainesList(response.data.data);
-        setNomEtablissement(
-          response.data.data[0]?.etablissement?.nom || "Etablissement non spécifié"
-        );
+        const fetchedSemaines = response.data.data;
+        setSemainesList(fetchedSemaines);
 
-        // Trouver la semaine courante (la plus récente)
-        if (response.data.data.length > 0) {
-          const currentWeek = response.data.data[0];
+        if (fetchedSemaines.length > 0) {
+          setNomEtablissement(
+            fetchedSemaines[0]?.etablissement?.nom ||
+              "Etablissement non spécifié"
+          );
+
+          const currentWeek = fetchedSemaines[0];
+
           setCurrentWeekId(currentWeek.id);
           fetchSeances(currentWeek.id);
+        } else {
+          setLoading(false);
         }
       } catch (err) {
         console.error("Erreur de chargement des semaines:", err);
@@ -52,8 +57,11 @@ const Timetable = () => {
     fetchSemaines();
   }, []);
 
-  // Charger les séances pour une semaine donnée
   const fetchSeances = async (weekId) => {
+    if (!weekId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const response = await API.get(`/mes-seances/semaine/${weekId}`);
@@ -72,34 +80,37 @@ const Timetable = () => {
     }
   };
 
-  // Navigation entre les semaines
+  const handleSelectWeek = (weekId) => {
+    setCurrentWeekId(parseInt(weekId));
+    fetchSeances(parseInt(weekId));
+  };
+
   const handleWeekChange = (direction) => {
     const currentIndex = semainesList.findIndex((w) => w.id === currentWeekId);
     if (currentIndex === -1) return;
 
+    let targetWeek = null;
     if (direction === "prev" && currentIndex < semainesList.length - 1) {
-      const prevWeek = semainesList[currentIndex + 1];
-      setCurrentWeekId(prevWeek.id);
-      fetchSeances(prevWeek.id);
+      targetWeek = semainesList[currentIndex + 1];
     } else if (direction === "next" && currentIndex > 0) {
-      const nextWeek = semainesList[currentIndex - 1];
-      setCurrentWeekId(nextWeek.id);
-      fetchSeances(nextWeek.id);
+      targetWeek = semainesList[currentIndex - 1];
+    }
+
+    if (targetWeek) {
+      setCurrentWeekId(targetWeek.id);
+      fetchSeances(targetWeek.id);
     }
   };
 
   const getJourFromDate = (dateString) => {
     try {
       if (!dateString) return -1;
-
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {
         console.error("Date invalide:", dateString);
         return -1;
       }
-
-      const day = date.getDay(); // 0 (dimanche) à 6 (samedi)
-      // Ajustement pour avoir lundi=0 à samedi=5
+      const day = date.getDay();
       return day === 0 ? 6 : day - 1;
     } catch (err) {
       console.error("Erreur dans getJourFromDate:", err);
@@ -110,10 +121,7 @@ const Timetable = () => {
   const getCreneauIndex = (heureDebut, heureFin) => {
     if (!heureDebut || !heureFin) return -1;
 
-    // Normaliser les formats d'heure
-    const formatTime = (time) => {
-      return time.slice(0, 5); // Garde seulement "HH:MM"
-    };
+    const formatTime = (time) => time.slice(0, 5);
 
     const creneauxMap = creneaux.map((creneau) => {
       const [debut, fin] = creneau.split(" - ");
@@ -131,12 +139,10 @@ const Timetable = () => {
         return i;
       }
     }
-
     console.warn(`Aucun créneau trouvé pour ${heureDebut} - ${heureFin}`);
     return -1;
   };
 
-  // Organiser les séances par jour et créneau
   const organizedSeances = Array(jours.length)
     .fill()
     .map(() => Array(creneaux.length).fill(null));
@@ -146,7 +152,6 @@ const Timetable = () => {
     const creneauIndex = getCreneauIndex(seance.heure_debut, seance.heure_fin);
 
     if (jourIndex >= 0 && jourIndex < jours.length && creneauIndex >= 0) {
-      // Gérer les cas où plusieurs séances peuvent avoir le même créneau
       if (organizedSeances[jourIndex][creneauIndex]) {
         if (!Array.isArray(organizedSeances[jourIndex][creneauIndex])) {
           organizedSeances[jourIndex][creneauIndex] = [
@@ -185,6 +190,9 @@ const Timetable = () => {
           currentWeekId &&
           semainesList.findIndex((w) => w.id === currentWeekId) > 0
         }
+        semainesList={semainesList}
+        currentWeekId={currentWeekId}
+        onSelectWeek={handleSelectWeek}
       />
       <div>
         {semaine && (
@@ -279,7 +287,6 @@ const Timetable = () => {
   );
 };
 
-// Composant pour afficher une séance
 const SeanceCard = ({ seance }) => {
   return (
     <div className="h-full flex flex-col justify-center p-2 last:mb-0 border-b last:border-b-0 border-gray-200">

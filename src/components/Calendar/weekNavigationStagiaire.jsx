@@ -1,10 +1,17 @@
-import React from "react";
-
-const WeekNavigationStagiaire = ({ onPrev, onNext, canGoPrev, canGoNext,nomGroupe }) => {
+const WeekNavigationStagiaire = ({
+  onPrev,
+  onNext,
+  canGoPrev,
+  canGoNext,
+  nomGroupe,
+  semainesList,
+  currentWeekId,
+  onSelectWeek,
+}) => {
   return (
-    <div className="flex justify-between items-center mb-8">
+    <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
       <button
-        className={`px-6 py-3 rounded-lg text-white float-end font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
+        className={`px-6 py-3 rounded-lg text-white font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
           !canGoPrev ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
         }`}
         style={{
@@ -16,11 +23,31 @@ const WeekNavigationStagiaire = ({ onPrev, onNext, canGoPrev, canGoNext,nomGroup
       >
         Semaine précédente
       </button>
-      <h2 className="text-2xl font-bold text-center flex-grow">
-        {nomGroupe ? `Groupe: ${nomGroupe}` : "Calendrier"}
-      </h2>
+
+      <div className="flex flex-col items-center flex-grow">
+        <h2 className="text-2xl font-bold text-center mb-2">
+          {nomGroupe ? `Groupe: ${nomGroupe}` : "Calendrier du groupe"}
+        </h2>
+        <select
+          className="px-4 py-3 rounded-lg border cursor-pointer border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-gray-700 w-full max-w-xs"
+          value={currentWeekId || ""}
+          onChange={(e) => onSelectWeek(e.target.value)}
+        >
+          {semainesList.length === 0 && (
+            <option value="" disabled>
+              Aucune semaine disponible
+            </option>
+          )}
+          {semainesList.map((week) => (
+            <option key={week.id} value={week.id}>
+              Semaine {week.numero_semaine}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <button
-        className={`px-6 py-3 rounded-lg text-white float-end font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
+        className={`px-6 py-3 rounded-lg text-white font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg ${
           !canGoNext ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
         }`}
         style={{
